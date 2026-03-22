@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Trabalho Flexível, Quando Precisas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --white:   #f5f2ec;
+      --cream:   #ede9e0;
+      --accent:  #e8511a;
+      --accent2: #f0a500;
+      --mid:     #3a3530;
+      --muted:   #8a837a;
+      --card-bg: #161310;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 5vw;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted); font-size: 0.9rem; text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .btn-nav {
+      background: var(--accent); color: #fff !important;
+      padding: .5rem 1.2rem; border-radius: 6px;
+      font-weight: 500; font-size: 0.88rem !important;
+      transition: opacity .2s !important;
+    }
+    .btn-nav:hover { opacity: .85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 8rem 5vw 5rem;
+      gap: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -20%; right: -10%;
+      width: 60vw; height: 60vw;
+      background: radial-gradient(circle, rgba(232,81,26,.18) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 20%;
+      width: 40vw; height: 40vw;
+      background: radial-gradient(circle, rgba(240,165,0,.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-text { position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(232,81,26,.12);
+      border: 1px solid rgba(232,81,26,.3);
+      color: var(--accent);
+      padding: .35rem .85rem;
+      border-radius: 100px;
+      font-size: .8rem; font-weight: 500; letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp .6s .1s forwards;
+    }
+    .hero-badge::before { content: '●'; font-size: .5rem; }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp .6s .2s forwards;
+    }
+    h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 480px; margin-bottom: 2.5rem;
+      line-height: 1.7;
+      opacity: 0; animation: fadeUp .6s .35s forwards;
+    }
+    .hero-ctas {
+      display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+      opacity: 0; animation: fadeUp .6s .5s forwards;
+    }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: .85rem 2rem; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 500;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 24px rgba(232,81,26,.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,81,26,.45); }
+    .btn-secondary {
+      color: var(--white); background: transparent;
+      border: 1px solid rgba(255,255,255,.18);
+      padding: .85rem 2rem; border-radius: 8px;
+      font-size: .95rem; font-weight: 400;
+      text-decoration: none; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.05); }
+
+    /* hero stats */
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 3rem;
+      opacity: 0; animation: fadeUp .6s .65s forwards;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: .2rem; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem; font-weight: 800;
+      color: var(--white);
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* hero visual */
+    .hero-visual {
+      position: relative; z-index: 1;
+      opacity: 0; animation: fadeIn .8s .4s forwards;
+    }
+    .app-mockup {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 32px 80px rgba(0,0,0,.6);
+      position: relative;
+    }
+    .mockup-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+    .mockup-title { font-family: 'Syne', sans-serif; font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+    .mockup-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    .vaga-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin-bottom: .7rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color .3s;
+    }
+    .vaga-card:hover { border-color: rgba(232,81,26,.3); }
+    .vaga-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .v1 { background: rgba(232,81,26,.15); }
+    .v2 { background: rgba(240,165,0,.15); }
+    .v3 { background: rgba(80,180,120,.15); }
+    .vaga-info { flex: 1; min-width: 0; }
+    .vaga-nome { font-weight: 500; font-size: .92rem; margin-bottom: .1rem; }
+    .vaga-meta { font-size: .78rem; color: var(--muted); }
+    .vaga-preco {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700; color: var(--accent2);
+      white-space: nowrap;
+    }
+    .badge-new {
+      background: rgba(232,81,26,.15); color: var(--accent);
+      font-size: .68rem; font-weight: 600; padding: .2rem .5rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: .05em;
+    }
+    .mockup-footer {
+      margin-top: 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mockup-footer-text { font-size: .75rem; color: var(--muted); }
+    .btn-tiny {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 6px;
+      padding: .4rem .9rem; font-size: .75rem; font-weight: 600;
+      cursor: pointer;
+    }
+    /* floating tag */
+    .float-tag {
+      position: absolute;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: .6rem 1rem;
+      font-size: .8rem;
+      display: flex; align-items: center; gap: .5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .float-tag .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .tag1 { top: -1.2rem; right: -1.5rem; animation: float 4s ease-in-out infinite; }
+    .tag2 { bottom: -1rem; left: -1.5rem; animation: float 4s ease-in-out 2s infinite; }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 6rem 5vw; }
+    .section-label {
+      font-size: .75rem; color: var(--accent); text-transform: uppercase;
+      letter-spacing: .15em; font-weight: 600;
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -.025em;
+    }
+    .section-title em { font-style: normal; color: var(--accent); }
+    .section-sub { color: var(--muted); font-size: 1rem; margin-top: .75rem; max-width: 500px; line-height: 1.7; }
+
+    /* ── COMO FUNCIONA ── */
+    .como-funciona { background: var(--card-bg); border-top: 1px solid rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.05); }
+    .como-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      margin-top: 4rem;
+      align-items: start;
+    }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 1.5rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .step:last-child { border-bottom: none; }
+    .step:hover { opacity: .8; }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      color: rgba(255,255,255,.08);
+      min-width: 2.5rem; line-height: 1;
+      transition: color .3s;
+    }
+    .step.active .step-num { color: var(--accent); }
+    .step-content { flex: 1; }
+    .step-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .step-desc { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+    /* tab panels */
+    .tab-panels { position: relative; }
+    .tab-panel {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px; padding: 2rem;
+      display: none;
+    }
+    .tab-panel.active { display: block; animation: fadeIn .4s; }
+    .tab-panel-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .tab-panel h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: .75rem; }
+    .tab-panel p { color: var(--muted); font-size: .9rem; line-height: 1.7; }
+    .tab-panel ul { margin-top: 1rem; display: flex; flex-direction: column; gap: .5rem; }
+    .tab-panel li { font-size: .88rem; color: var(--muted); padding-left: 1.2rem; position: relative; }
+    .tab-panel li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+    /* ── PARA QUEM ── */
+    .para-quem { }
+    .para-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+      margin-top: 3.5rem;
+    }
+    .para-card {
+      border-radius: 16px; padding: 2.5rem;
+      position: relative; overflow: hidden;
+    }
+    .para-card.empresa {
+      background: linear-gradient(135deg, #1a1108 0%, #0f0d0a 100%);
+      border: 1px solid rgba(240,165,0,.15);
+    }
+    .para-card.trabalhador {
+      background: linear-gradient(135deg, #140d0a 0%, #0f0d0a 100%);
+      border: 1px solid rgba(232,81,26,.15);
+    }
+    .para-card::before {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 60%; height: 60%;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .para-card.empresa::before { background: radial-gradient(circle, rgba(240,165,0,.08) 0%, transparent 70%); }
+    .para-card.trabalhador::before { background: radial-gradient(circle, rgba(232,81,26,.08) 0%, transparent 70%); }
+    .para-emoji { font-size: 2.5rem; margin-bottom: 1.2rem; }
+    .para-card h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: .5rem; }
+    .para-card .sub { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .benefit-list { display: flex; flex-direction: column; gap: .6rem; }
+    .benefit {
+      display: flex; align-items: flex-start; gap: .75rem;
+      font-size: .88rem; color: var(--muted);
+    }
+    .benefit-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; flex-shrink: 0; margin-top: .1rem;
+    }
+    .empresa .benefit-icon { background: rgba(240,165,0,.15); color: var(--accent2); }
+    .trabalhador .benefit-icon { background: rgba(232,81,26,.15); color: var(--accent); }
+
+    /* ── AVALIAÇÕES / TRUST ── */
+    .trust { background: var(--card-bg); border-top: 1px solid rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.05); }
+    .trust-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem; }
+    .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .review-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: border-color .3s, transform .3s;
+    }
+    .review-card:hover { border-color: rgba(232,81,26,.2); transform: translateY(-4px); }
+    .stars { color: var(--accent2); font-size: .9rem; margin-bottom: .75rem; letter-spacing: .1em; }
+    .review-text { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; font-style: italic; }
+    .reviewer { display: flex; align-items: center; gap: .75rem; }
+    .reviewer-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; font-weight: 700;
+      font-family: 'Syne', sans-serif;
+      flex-shrink: 0;
+    }
+    .reviewer-name { font-size: .85rem; font-weight: 500; }
+    .reviewer-role { font-size: .75rem; color: var(--muted); }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      text-align: center;
+      padding: 8rem 5vw;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 70vw; height: 70vw; max-width: 800px; max-height: 800px;
+      background: radial-gradient(circle, rgba(232,81,26,.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .cta-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -.03em;
+      max-width: 700px; margin: 0 auto 1.5rem;
+      position: relative;
+    }
+    .cta-section h2 em { font-style: normal; color: var(--accent); }
+    .cta-section p { color: var(--muted); font-size: 1rem; max-width: 400px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; }
+    .btn-large {
+      padding: 1rem 2.5rem; font-size: 1rem; font-weight: 500;
+      border-radius: 8px; text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-large.primary {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 4px 24px rgba(232,81,26,.35);
+    }
+    .btn-large.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,81,26,.5); }
+    .btn-large.outline {
+      border: 1px solid rgba(255,255,255,.2); color: var(--white);
+    }
+    .btn-large.outline:hover { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.05); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 3rem 5vw;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); font-size: .83rem; text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy { color: var(--muted); font-size: .78rem; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: .3; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 6rem; }
+      .hero-visual { display: none; }
+      .como-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .para-grid { grid-template-columns: 1fr; }
+      .reviews-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .reviews-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Flex<span>Work</span></a>
+  <div class="nav-links">
+    <a href="#como-funciona">Como Funciona</a>
+    <a href="#para-quem">Para Quem</a>
+    <a href="#avaliacoes">Testemunhos</a>
+    <a href="flexwork-registo.html" class="btn-nav">Começar Grátis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">MVP — Marketplace de Trabalho Flex</div>
+    <h1>Trabalho extra,<br><em>na hora certa.</em></h1>
+    <p class="hero-sub">
+      O FlexWork liga empresas com necessidade pontual de mão de obra a trabalhadores com disponibilidade. Sem intermediários, sem burocracia.
+    </p>
+    <div class="hero-ctas">
+      <a href="flexwork-registo.html" class="btn-primary">Sou Empresa — Publicar Vaga</a>
+      <a href="flexwork-registo.html" class="btn-secondary">Sou Trabalhador →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num">&lt;1h</span>
+        <span class="stat-label">Para ter candidatos</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">€0</span>
+        <span class="stat-label">Para começar</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Online</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="app-mockup">
+      <div class="mockup-header">
+        <span class="mockup-title">Vagas Disponíveis</span>
+        <span class="mockup-dot"></span>
+      </div>
+
+      <div class="vaga-card">
+        <div class="vaga-icon v1">🍽️</div>
+        <div class="vaga-info">
+          <div class="vaga-nome">Garçom para Evento</div>
+          <div class="vaga-meta">Restaurante Solar · Lisboa · Amanhã 18h</div>
+        </div>
+        <div>
+          <div class="vaga-preco">€9/h</div>
+          <div style="margin-top:.3rem"><span class="badge-new">Novo</span></div>
+        </div>
+      </div>
+
+      <div class="vaga-card">
+        <div class="vaga-icon v2">🛒</div>
+        <div class="vaga-info">
+          <div class="vaga-nome">Reposição Sazonais</div>
+          <div class="vaga-meta">Hipermercado Max · Porto · Sáb. + Dom.</div>
+        </div>
+        <div>
+          <div class="vaga-preco">€8.5/h</div>
+        </div>
+      </div>
+
+      <div class="vaga-card">
+        <div class="vaga-icon v3">🧹</div>
+        <div class="vaga-info">
+          <div class="vaga-nome">Limpeza Pós-Evento</div>
+          <div class="vaga-meta">CleanPro · Setúbal · 6ª-feira</div>
+        </div>
+        <div>
+          <div class="vaga-preco">€10/h</div>
+        </div>
+      </div>
+
+      <div class="mockup-footer">
+        <span class="mockup-footer-text">12 vagas na tua zona</span>
+        <button class="btn-tiny">Ver Todas →</button>
+      </div>
+    </div>
+
+    <div class="float-tag tag1">
+      <span class="dot" style="background:#50b478"></span>
+      Candidatura aceite ✓
+    </div>
+    <div class="float-tag tag2">
+      <span class="dot" style="background:var(--accent2)"></span>
+      ⭐ 4.9 · 38 trabalhos
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="como-funciona" id="como-funciona">
+  <div class="section-label">Processo</div>
+  <h2 class="section-title">Simples do início<br><em>ao fim.</em></h2>
+  <p class="section-sub">Três passos para empresas. Três passos para trabalhadores. Sem formulários complexos.</p>
+
+  <div class="como-grid">
+    <div class="steps" id="steps">
+      <div class="step active" data-tab="0">
+        <span class="step-num">01</span>
+        <div class="step-content">
+          <div class="step-title">Cria o teu perfil</div>
+          <div class="step-desc">Registo em menos de 2 minutos. Empresa ou trabalhador — preenchas o básico e já estás dentro.</div>
+        </div>
+      </div>
+      <div class="step" data-tab="1">
+        <span class="step-num">02</span>
+        <div class="step-content">
+          <div class="step-title">Publica ou encontra vagas</div>
+          <div class="step-desc">Empresas publicam vagas em 3 passos. Trabalhadores filtram por categoria, local e valor/hora.</div>
+        </div>
+      </div>
+      <div class="step" data-tab="2">
+        <span class="step-num">03</span>
+        <div class="step-content">
+          <div class="step-title">Match & Trabalha</div>
+          <div class="step-desc">A empresa confirma o trabalhador. Ambos recebem os contactos e confirmação por email. É só aparecer.</div>
+        </div>
+      </div>
+      <div class="step" data-tab="3">
+        <span class="step-num">04</span>
+        <div class="step-content">
+          <div class="step-title">Avaliação mútua</div>
+          <div class="step-desc">Após o trabalho, ambas as partes avaliam. A reputação digital construída abre mais oportunidades.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panels">
+      <div class="tab-panel active">
+        <div class="tab-panel-icon">👤</div>
+        <h3>O teu perfil, a tua reputação</h3>
+        <p>Para empresas: nome, NIF, setor e logo. Para trabalhadores: competências, disponibilidade e raio de deslocação.</p>
+        <ul>
+          <li>Registo com email ou Google</li>
+          <li>Verificação por email automática</li>
+          <li>Perfil público visível pela plataforma</li>
+        </ul>
+      </div>
+      <div class="tab-panel">
+        <div class="tab-panel-icon">📋</div>
+        <h3>Vagas claras, sem surpresas</h3>
+        <p>Cada vaga tem título, descrição, data, hora, local no mapa e valor/hora. O trabalhador sabe exatamente ao que vai.</p>
+        <ul>
+          <li>Publicação em menos de 3 minutos</li>
+          <li>Filtros por categoria, data e localização</li>
+          <li>Vagas visíveis imediatamente após publicação</li>
+        </ul>
+      </div>
+      <div class="tab-panel">
+        <div class="tab-panel-icon">🤝</div>
+        <h3>Match em 1 clique</h3>
+        <p>O trabalhador candidata-se com um clique. A empresa vê os perfis e aceita ou recusa. Simples assim.</p>
+        <ul>
+          <li>Notificação imediata por email</li>
+          <li>Contactos partilhados após confirmação</li>
+          <li>Lembrete automático 24h antes</li>
+        </ul>
+      </div>
+      <div class="tab-panel">
+        <div class="tab-panel-icon">⭐</div>
+        <h3>Reputação que vale dinheiro</h3>
+        <p>As avaliações são mútuas e ficam visíveis após ambas as partes responderem. Quanto melhor a nota, mais oportunidades.</p>
+        <ul>
+          <li>1 a 5 estrelas com comentário opcional</li>
+          <li>Avaliações não editáveis após submissão</li>
+          <li>Janela de 48h após fim do trabalho</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUEM -->
+<section class="para-quem" id="para-quem">
+  <div style="text-align:center; max-width:600px; margin:0 auto 1rem;">
+    <div class="section-label">Para quem é</div>
+    <h2 class="section-title">Dois lados,<br><em>uma plataforma.</em></h2>
+  </div>
+
+  <div class="para-grid">
+    <div class="para-card empresa">
+      <div class="para-emoji">🏢</div>
+      <h3>Para Empresas</h3>
+      <p class="sub">Restauração, comércio, limpeza, logística — qualquer negócio que precise de reforço pontual sem compromissos.</p>
+      <div class="benefit-list">
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Candidatos verificados com avaliações reais
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Sem burocracia de recrutamento
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Publicação de vaga em menos de 3 minutos
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Receber candidatos em menos de 1 hora
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Painel para gerir todas as vagas e contratos
+        </div>
+      </div>
+    </div>
+
+    <div class="para-card trabalhador">
+      <div class="para-emoji">💪</div>
+      <h3>Para Trabalhadores</h3>
+      <p class="sub">Estudantes, desempregados, reformados ou quem queira horas extra — trabalha quando e onde queres.</p>
+      <div class="benefit-list">
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Trabalhar quando tens disponibilidade
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Valor/hora transparente desde o início
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Construção de reputação digital
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Candidatura com 1 clique, sem formulários
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">✓</div>
+          Notificações em tempo real por email
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AVALIAÇÕES -->
+<section class="trust" id="avaliacoes">
+  <div class="trust-header">
+    <div>
+      <div class="section-label">Testemunhos</div>
+      <h2 class="section-title">Pessoas reais,<br><em>resultados reais.</em></h2>
+    </div>
+    <div style="color:var(--muted); font-size:.9rem; text-align:right;">
+      Avaliação média<br>
+      <span style="font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; color:var(--white);">4.8</span>
+      <span style="color:var(--accent2)"> ★</span>
+    </div>
+  </div>
+
+  <div class="reviews-grid">
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Precisei de dois garçons para um jantar de empresa na sexta à tarde. Publiquei a vaga às 10h e tinha confirmação às 11h30. Incrível."</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="background:rgba(240,165,0,.15); color:var(--accent2);">M</div>
+        <div>
+          <div class="reviewer-name">Margarida F.</div>
+          <div class="reviewer-role">Restaurante Solar, Lisboa</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Como estudante, é perfeito. Trabalho nos fins de semana quando quero e já tenho reputação construída com várias avaliações positivas."</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="background:rgba(232,81,26,.15); color:var(--accent);">T</div>
+        <div>
+          <div class="reviewer-name">Tomás R.</div>
+          <div class="reviewer-role">Estudante · 14 trabalhos realizados</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="stars">★★★★☆</div>
+      <p class="review-text">"Usámos para reforço sazonal no Natal. A plataforma é simples, os perfis têm avaliações reais e o processo é muito mais rápido que o recrutamento tradicional."</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="background:rgba(80,180,120,.15); color:#50b478;">C</div>
+        <div>
+          <div class="reviewer-name">Carlos M.</div>
+          <div class="reviewer-role">Diretor RH · Grupo Retail Norte</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section" id="registo">
+  <h2>Pronto para <em>começar?</em></h2>
+  <p>Registo gratuito. Sem cartão de crédito. Começa a publicar ou encontrar vagas hoje.</p>
+  <div class="cta-btns">
+    <a href="flexwork-registo.html" class="btn-large primary">Criar Conta Grátis</a>
+    <a href="#como-funciona" class="btn-large outline">Ver como funciona</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Flex<span>Work</span></div>
+  <div class="footer-links">
+    <a href="flexwork-landing.html#como-funciona">Sobre</a>
+    <a href="#">Como Funciona</a>
+    <a href="#">Privacidade</a>
+    <a href="#">Termos e Condições</a>
+    <a href="#">Contacto</a>
+  </div>
+  <div class="footer-copy">© 2026 FlexWork. Todos os direitos reservados.</div>
+</footer>
+
+<script>
+  // Tab switching on steps
+  const steps = document.querySelectorAll('.step');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  steps.forEach(step => {
+    step.addEventListener('click', () => {
+      const tab = parseInt(step.dataset.tab);
+      steps.forEach(s => s.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      step.classList.add('active');
+      panels[tab].classList.add('active');
+    });
+  });
+
+  // Scroll-triggered fade-in for sections
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.para-card, .review-card, .vaga-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity .5s, transform .5s';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Criar Conta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --white:   #f5f2ec;
+      --cream:   #ede9e0;
+      --accent:  #e8511a;
+      --accent2: #f0a500;
+      --mid:     #3a3530;
+      --muted:   #8a837a;
+      --card-bg: #161310;
+      --border:  rgba(255,255,255,0.08);
+      --input-bg: rgba(255,255,255,0.04);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      width: 48%;
+      min-height: 100vh;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 2.5rem 3.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      bottom: -10%; left: -20%;
+      width: 80%;height: 80%;
+      background: radial-gradient(circle, rgba(232,81,26,.13) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      top: -10%; right: -20%;
+      width: 70%; height: 70%;
+      background: radial-gradient(circle, rgba(240,165,0,.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.4rem;
+      letter-spacing: -.02em;
+      color: var(--white);
+      text-decoration: none;
+      position: relative; z-index: 1;
+    }
+    .logo span { color: var(--accent); }
+
+    .left-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative; z-index: 1;
+    }
+
+    .left-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(232,81,26,.12);
+      border: 1px solid rgba(232,81,26,.25);
+      color: var(--accent);
+      padding: .3rem .8rem;
+      border-radius: 100px;
+      font-size: .75rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 1.5rem;
+      width: fit-content;
+    }
+
+    .left-panel h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      margin-bottom: 1.2rem;
+    }
+    .left-panel h2 em { font-style: normal; color: var(--accent); }
+
+    .left-panel .sub {
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* preview cards */
+    .preview-cards { display: flex; flex-direction: column; gap: .8rem; }
+
+    .preview-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .9rem 1.1rem;
+      display: flex; align-items: center; gap: .9rem;
+      transform: translateX(0);
+      transition: transform .3s, border-color .3s;
+    }
+    .preview-card:hover { transform: translateX(4px); border-color: rgba(232,81,26,.25); }
+
+    .preview-card.highlight {
+      border-color: rgba(232,81,26,.3);
+      background: rgba(232,81,26,.06);
+    }
+
+    .pc-icon {
+      width: 38px; height: 38px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .pc-icon.orange { background: rgba(232,81,26,.15); }
+    .pc-icon.yellow { background: rgba(240,165,0,.15); }
+    .pc-icon.green  { background: rgba(80,180,120,.15); }
+
+    .pc-info { flex: 1; min-width: 0; }
+    .pc-title { font-size: .88rem; font-weight: 500; }
+    .pc-sub   { font-size: .75rem; color: var(--muted); margin-top: .05rem; }
+
+    .pc-badge {
+      font-size: .7rem; font-weight: 600;
+      padding: .2rem .55rem; border-radius: 4px;
+      white-space: nowrap;
+    }
+    .pc-badge.green-badge  { background: rgba(80,180,120,.15); color: #50b478; }
+    .pc-badge.orange-badge { background: rgba(232,81,26,.15);  color: var(--accent); }
+
+    /* trust row */
+    .trust-row {
+      display: flex; align-items: center; gap: 1.5rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .trust-item { display: flex; flex-direction: column; gap: .15rem; }
+    .trust-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem; font-weight: 800;
+    }
+    .trust-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 3rem 4vw 4rem;
+      overflow-y: auto;
+    }
+
+    .form-wrapper {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .form-header { margin-bottom: 2rem; }
+    .form-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem; font-weight: 800;
+      letter-spacing: -.025em;
+      margin-bottom: .3rem;
+    }
+    .form-header p { color: var(--muted); font-size: .9rem; }
+    .form-header p a { color: var(--accent); text-decoration: none; }
+    .form-header p a:hover { text-decoration: underline; }
+
+    /* type toggle */
+    .type-toggle {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .4rem;
+      margin-bottom: 1.8rem;
+    }
+    .type-btn {
+      border: none; background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; font-weight: 500;
+      padding: .7rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: all .2s;
+    }
+    .type-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(232,81,26,.3);
+    }
+    .type-btn:not(.active):hover {
+      background: rgba(255,255,255,.05);
+      color: var(--white);
+    }
+
+    /* google btn */
+    .btn-google {
+      width: 100%;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem; font-weight: 400;
+      padding: .8rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .75rem;
+      transition: background .2s, border-color .2s;
+      margin-bottom: 1.4rem;
+    }
+    .btn-google:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); }
+    .btn-google svg { flex-shrink: 0; }
+
+    /* divider */
+    .divider {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.4rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+    .divider span { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+
+    /* form fields */
+    .fields { display: flex; flex-direction: column; gap: 1rem; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .field { display: flex; flex-direction: column; gap: .4rem; }
+    .field label {
+      font-size: .8rem; font-weight: 500;
+      color: rgba(255,255,255,.6);
+      letter-spacing: .02em;
+    }
+    .field label .req { color: var(--accent); margin-left: .15rem; }
+
+    .field input, .field select {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem; font-weight: 300;
+      padding: .75rem 1rem;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color .2s, background .2s;
+      width: 100%;
+      appearance: none;
+    }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus, .field select:focus {
+      border-color: var(--accent);
+      background: rgba(232,81,26,.06);
+    }
+    .field input.error { border-color: #e85555; }
+    .field .error-msg {
+      font-size: .75rem; color: #e85555;
+      display: none;
+    }
+    .field input.error ~ .error-msg { display: block; }
+
+    /* password wrapper */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 2.8rem; }
+    .pw-toggle {
+      position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: .85rem;
+      transition: color .2s; padding: 0;
+      display: flex; align-items: center;
+    }
+    .pw-toggle:hover { color: var(--white); }
+
+    /* NIF field — hidden by default, shown for empresa */
+    .nif-field { display: none; }
+    .nif-field.visible { display: flex; }
+
+    /* password strength */
+    .pw-strength { margin-top: .4rem; }
+    .strength-bar {
+      height: 3px; border-radius: 100px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden; margin-bottom: .3rem;
+    }
+    .strength-fill {
+      height: 100%; border-radius: 100px;
+      width: 0%; transition: width .4s, background .4s;
+    }
+    .strength-text { font-size: .72rem; color: var(--muted); }
+
+    /* terms */
+    .terms-row {
+      display: flex; align-items: flex-start; gap: .65rem;
+      margin-top: .5rem;
+    }
+    .terms-row input[type="checkbox"] {
+      width: 16px; height: 16px; flex-shrink: 0;
+      accent-color: var(--accent);
+      margin-top: .15rem; cursor: pointer;
+    }
+    .terms-row label {
+      font-size: .8rem; color: var(--muted); cursor: pointer;
+    }
+    .terms-row label a { color: var(--accent); text-decoration: none; }
+    .terms-row label a:hover { text-decoration: underline; }
+
+    /* submit */
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 500;
+      padding: .9rem 1rem;
+      border: none; border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1.2rem;
+      transition: opacity .2s, transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(232,81,26,.3);
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-submit:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,81,26,.4); }
+    .btn-submit:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* success state */
+    .success-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 0;
+      animation: fadeUp .5s forwards;
+    }
+    .success-state.visible { display: flex; }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: rgba(80,180,120,.15);
+      border: 1px solid rgba(80,180,120,.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .success-state h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem; font-weight: 800;
+      margin-bottom: .5rem;
+    }
+    .success-state p { color: var(--muted); font-size: .9rem; max-width: 320px; line-height: 1.6; }
+    .success-email {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .6rem 1.2rem;
+      font-size: .88rem;
+      margin-top: 1rem;
+      color: var(--white);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      body { flex-direction: column; }
+      .left-panel {
+        width: 100%; min-height: auto; height: auto;
+        position: static; padding: 2rem 1.5rem 2.5rem;
+      }
+      .preview-cards { display: none; }
+      .trust-row { margin-top: 1.2rem; padding-top: 1.2rem; }
+      .right-panel { padding: 2rem 1.5rem 3rem; }
+    }
+    @media (max-width: 480px) {
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <a href="flexwork-landing.html" class="logo">Flex<span>Work</span></a>
+
+  <div class="left-content">
+    <div class="left-tag">✦ Registo Gratuito</div>
+    <h2>A tua conta<br>em <em>2 minutos.</em></h2>
+    <p class="sub">Junta-te a empresas e trabalhadores que já usam o FlexWork para preencher e encontrar vagas de forma rápida e transparente.</p>
+
+    <div class="preview-cards">
+      <div class="preview-card highlight">
+        <div class="pc-icon orange">🍽️</div>
+        <div class="pc-info">
+          <div class="pc-title">Garçom para Evento</div>
+          <div class="pc-sub">Lisboa · Amanhã 18h · €9/h</div>
+        </div>
+        <span class="pc-badge orange-badge">3 candidatos</span>
+      </div>
+      <div class="preview-card">
+        <div class="pc-icon yellow">🛒</div>
+        <div class="pc-info">
+          <div class="pc-title">Reposição Sazonais</div>
+          <div class="pc-sub">Porto · Sáb + Dom · €8.5/h</div>
+        </div>
+        <span class="pc-badge green-badge">Disponível</span>
+      </div>
+      <div class="preview-card">
+        <div class="pc-icon green">🧹</div>
+        <div class="pc-info">
+          <div class="pc-title">Limpeza Pós-Evento</div>
+          <div class="pc-sub">Setúbal · 6ª-feira · €10/h</div>
+        </div>
+        <span class="pc-badge green-badge">Disponível</span>
+      </div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-item">
+        <span class="trust-num">€0</span>
+        <span class="trust-label">Para começar</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-num">&lt;1h</span>
+        <span class="trust-label">1º candidato</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-num">4.8★</span>
+        <span class="trust-label">Avaliação média</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="form-wrapper">
+
+    <div class="form-header">
+      <h1>Criar conta</h1>
+      <p>Já tens conta? <a href="flexwork-vagas.html">Iniciar sessão</a></p>
+    </div>
+
+    <!-- TYPE TOGGLE -->
+    <div class="type-toggle" role="group" aria-label="Tipo de conta">
+      <button class="type-btn active" id="btn-empresa" onclick="setType('empresa')">
+        🏢 Sou Empresa
+      </button>
+      <button class="type-btn" id="btn-trabalhador" onclick="setType('trabalhador')">
+        💪 Sou Trabalhador
+      </button>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">✓</div>
+      <h3>Conta criada!</h3>
+      <p>Enviámos um email de confirmação para:</p>
+      <div class="success-email" id="success-email-display">—</div>
+      <p style="margin-top:1rem;">Confirma o teu email para ativares a conta e começares a usar o FlexWork.</p>
+    </div>
+
+    <!-- FORM -->
+    <form id="register-form" novalidate>
+
+      <!-- Google -->
+      <button type="button" class="btn-google" onclick="handleGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+          <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Continuar com Google
+      </button>
+
+      <div class="divider"><span>ou regista-te com email</span></div>
+
+      <div class="fields">
+
+        <!-- Nome -->
+        <div class="field" id="field-nome">
+          <label for="nome">
+            <span id="nome-label">Nome da Empresa</span><span class="req">*</span>
+          </label>
+          <input type="text" id="nome" name="nome" placeholder="Ex: Restaurante Solar" autocomplete="organization" />
+          <span class="error-msg">Campo obrigatório</span>
+        </div>
+
+        <!-- Email + Telefone row -->
+        <div class="field-row">
+          <div class="field">
+            <label for="email">Email<span class="req">*</span></label>
+            <input type="email" id="email" name="email" placeholder="email@empresa.com" autocomplete="email" />
+            <span class="error-msg">Email inválido</span>
+          </div>
+          <div class="field">
+            <label for="telefone">Telefone<span class="req">*</span></label>
+            <input type="tel" id="telefone" name="telefone" placeholder="+351 9XX XXX XXX" autocomplete="tel" />
+            <span class="error-msg">Campo obrigatório</span>
+          </div>
+        </div>
+
+        <!-- NIF — só para empresa -->
+        <div class="field nif-field visible" id="nif-field">
+          <label for="nif">NIF da Empresa<span class="req">*</span></label>
+          <input type="text" id="nif" name="nif" placeholder="Ex: 501234567" maxlength="9" inputmode="numeric" />
+          <span class="error-msg">NIF inválido (9 dígitos)</span>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password">Palavra-passe<span class="req">*</span></label>
+          <div class="pw-wrap">
+            <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkStrength(this.value)" />
+            <button type="button" class="pw-toggle" onclick="togglePw('password', this)" aria-label="Mostrar palavra-passe">
+              👁
+            </button>
+          </div>
+          <div class="pw-strength">
+            <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+            <span class="strength-text" id="strength-text"></span>
+          </div>
+          <span class="error-msg">Mínimo 8 caracteres</span>
+        </div>
+
+        <!-- Confirm password -->
+        <div class="field">
+          <label for="password2">Confirmar Palavra-passe<span class="req">*</span></label>
+          <div class="pw-wrap">
+            <input type="password" id="password2" name="password2" placeholder="Repete a palavra-passe" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" onclick="togglePw('password2', this)" aria-label="Mostrar palavra-passe">
+              👁
+            </button>
+          </div>
+          <span class="error-msg">As palavras-passe não coincidem</span>
+        </div>
+
+        <!-- Terms -->
+        <div class="terms-row">
+          <input type="checkbox" id="terms" name="terms" />
+          <label for="terms">
+            Aceito os <a href="#">Termos e Condições</a> e a <a href="#">Política de Privacidade</a> do FlexWork, incluindo o tratamento de dados pessoais nos termos do RGPD.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-submit">
+          <span id="submit-text">Criar Conta Grátis</span>
+        </button>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  let currentType = 'empresa';
+
+  function setType(type) {
+    currentType = type;
+
+    document.getElementById('btn-empresa').classList.toggle('active', type === 'empresa');
+    document.getElementById('btn-trabalhador').classList.toggle('active', type === 'trabalhador');
+
+    const nifField  = document.getElementById('nif-field');
+    const nomeLabel = document.getElementById('nome-label');
+    const emailInput = document.getElementById('email');
+    const nomeInput = document.getElementById('nome');
+
+    if (type === 'empresa') {
+      nifField.classList.add('visible');
+      nomeLabel.textContent = 'Nome da Empresa';
+      nomeInput.placeholder = 'Ex: Restaurante Solar';
+      emailInput.placeholder = 'email@empresa.com';
+      document.getElementById('submit-text').textContent = 'Criar Conta de Empresa';
+    } else {
+      nifField.classList.remove('visible');
+      document.getElementById('nif').classList.remove('error');
+      nomeLabel.textContent = 'Nome Completo';
+      nomeInput.placeholder = 'Ex: João Silva';
+      emailInput.placeholder = 'joao@email.com';
+      document.getElementById('submit-text').textContent = 'Criar Conta de Trabalhador';
+    }
+  }
+
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  function checkStrength(val) {
+    const fill = document.getElementById('strength-fill');
+    const text = document.getElementById('strength-text');
+    if (!val) { fill.style.width = '0%'; text.textContent = ''; return; }
+
+    let score = 0;
+    if (val.length >= 8)  score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { pct: '20%', color: '#e85555', label: 'Muito fraca' },
+      { pct: '40%', color: '#e8a01a', label: 'Fraca' },
+      { pct: '60%', color: '#e8cf1a', label: 'Razoável' },
+      { pct: '80%', color: '#a0d048', label: 'Boa' },
+      { pct: '100%', color: '#50b478', label: 'Excelente' },
+    ];
+    const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+    fill.style.width    = lvl.pct;
+    fill.style.background = lvl.color;
+    text.textContent    = lvl.label;
+    text.style.color    = lvl.color;
+  }
+
+  function handleGoogle() {
+    const btn = document.querySelector('.btn-google');
+    btn.textContent = 'A redirecionar...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg> Continuar com Google`;
+      btn.disabled = false;
+    }, 1500);
+  }
+
+  // Form validation
+  document.getElementById('register-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let valid = true;
+
+    const nome     = document.getElementById('nome');
+    const email    = document.getElementById('email');
+    const telefone = document.getElementById('telefone');
+    const nif      = document.getElementById('nif');
+    const pw       = document.getElementById('password');
+    const pw2      = document.getElementById('password2');
+    const terms    = document.getElementById('terms');
+
+    // clear errors
+    [nome, email, telefone, nif, pw, pw2].forEach(f => f.classList.remove('error'));
+
+    if (!nome.value.trim()) { nome.classList.add('error'); valid = false; }
+    if (!email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { email.classList.add('error'); valid = false; }
+    if (!telefone.value.trim()) { telefone.classList.add('error'); valid = false; }
+    if (currentType === 'empresa' && !nif.value.match(/^\d{9}$/)) { nif.classList.add('error'); valid = false; }
+    if (pw.value.length < 8) { pw.classList.add('error'); valid = false; }
+    if (pw2.value !== pw.value) { pw2.classList.add('error'); valid = false; }
+    if (!terms.checked) { terms.style.outline = '2px solid var(--accent)'; valid = false; }
+    else { terms.style.outline = 'none'; }
+
+    if (!valid) return;
+
+    // simulate submit
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    document.getElementById('submit-text').textContent = 'A criar conta...';
+
+    setTimeout(() => {
+      document.getElementById('register-form').style.display = 'none';
+      const success = document.getElementById('success-state');
+      // redireciona após 3 segundos consoante tipo de conta
+      setTimeout(() => {
+        if (currentType === 'empresa') window.location.href = 'flexwork-dashboard-empresa.html';
+        else window.location.href = 'flexwork-dashboard-trabalhador.html';
+      }, 3000);
+      success.classList.add('visible');
+      document.getElementById('success-email-display').textContent = email.value;
+    }, 1200);
+  });
+
+  // init
+  setType('empresa');
+</script>
+
+</body>
+</html>

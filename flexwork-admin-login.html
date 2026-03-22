@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Acesso Restrito</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:  #080809;
+      --card:   #111013;
+      --border: rgba(255,255,255,0.08);
+      --white:  #ece8f2;
+      --muted:  #6e6c78;
+      --accent: #e8511a;
+      --red:    #e85555;
+      --green:  #3ecf8e;
+    }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    /* background glow */
+    body::before {
+      content: '';
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 60vw; height: 60vw;
+      background: radial-gradient(circle, rgba(232,81,26,.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 32px 80px rgba(0,0,0,.5);
+      animation: fadeUp .5s both;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.4rem;
+      letter-spacing: -.02em;
+      text-decoration: none; color: var(--white);
+      display: block; margin-bottom: .3rem;
+    }
+    .logo span { color: var(--accent); }
+
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: rgba(232,81,26,.1);
+      border: 1px solid rgba(232,81,26,.2);
+      color: var(--accent);
+      font-size: .65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      padding: .2rem .55rem; border-radius: 5px;
+      margin-bottom: 2rem;
+    }
+    .admin-badge::before { content: '●'; font-size: .45rem; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem; font-weight: 800;
+      letter-spacing: -.025em;
+      margin-bottom: .4rem;
+    }
+    .subtitle {
+      font-size: .85rem; color: var(--muted);
+      margin-bottom: 2rem; line-height: 1.5;
+    }
+
+    .field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+    .field label { font-size: .78rem; font-weight: 500; color: rgba(255,255,255,.55); letter-spacing: .02em; }
+
+    .pw-wrap { position: relative; }
+    .field input {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem; font-weight: 300;
+      padding: .75rem 2.8rem .75rem 1rem;
+      border-radius: 9px; outline: none;
+      width: 100%;
+      transition: border-color .2s, background .2s;
+    }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus { border-color: var(--accent); background: rgba(232,81,26,.05); }
+    .field input.error { border-color: var(--red); background: rgba(232,85,85,.05); }
+
+    .pw-toggle {
+      position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: .85rem;
+      transition: color .2s; padding: 0;
+      display: flex; align-items: center;
+    }
+    .pw-toggle:hover { color: var(--white); }
+
+    .error-msg {
+      display: none;
+      background: rgba(232,85,85,.1);
+      border: 1px solid rgba(232,85,85,.25);
+      color: var(--red);
+      font-size: .8rem;
+      padding: .6rem .9rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      align-items: center; gap: .5rem;
+    }
+    .error-msg.visible { display: flex; }
+
+    /* attempts indicator */
+    .attempts-row {
+      display: flex; gap: .35rem; margin-bottom: 1.2rem;
+    }
+    .attempt-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      transition: background .3s;
+    }
+    .attempt-dot.used { background: var(--red); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 9px;
+      padding: .85rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s, transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(232,81,26,.3);
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-login:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,81,26,.4); }
+    .btn-login:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* locked state */
+    .locked-state {
+      display: none;
+      flex-direction: column; align-items: center;
+      text-align: center; padding: 1rem 0;
+    }
+    .locked-state.visible { display: flex; }
+    .lock-icon {
+      font-size: 3rem; margin-bottom: 1rem;
+      animation: shake .4s;
+    }
+    .locked-state h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; margin-bottom: .4rem; color: var(--red); }
+    .locked-state p { font-size: .85rem; color: var(--muted); line-height: 1.5; max-width: 280px; }
+    .countdown { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--red); margin: .75rem 0; }
+    .countdown span { font-size: 1rem; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 300; }
+
+    /* success state */
+    .success-state {
+      display: none;
+      flex-direction: column; align-items: center;
+      text-align: center; padding: 1rem 0;
+    }
+    .success-state.visible { display: flex; }
+    .success-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(62,207,142,.15);
+      border: 1px solid rgba(62,207,142,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin-bottom: 1rem;
+    }
+    .success-state h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; margin-bottom: .4rem; }
+    .success-state p { font-size: .85rem; color: var(--muted); }
+    .progress-bar {
+      width: 100%; height: 3px; background: rgba(255,255,255,.08);
+      border-radius: 100px; margin-top: 1.5rem; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--green); border-radius: 100px;
+      width: 0%; transition: width 1.8s linear;
+    }
+
+    .back-link {
+      display: block; text-align: center;
+      margin-top: 1.5rem; font-size: .8rem; color: var(--muted);
+      text-decoration: none; transition: color .2s;
+    }
+    .back-link:hover { color: var(--white); }
+
+    /* security note */
+    .security-note {
+      display: flex; align-items: flex-start; gap: .5rem;
+      margin-top: 1.5rem; padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+      font-size: .72rem; color: var(--muted); line-height: 1.5;
+    }
+    .security-note .icon { flex-shrink: 0; font-size: .85rem; }
+
+    @keyframes fadeUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes shake   { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+  </style>
+</head>
+<body>
+
+<div class="login-box">
+  <a href="flexwork-landing.html" class="logo">Flex<span>Work</span></a>
+  <div class="admin-badge">Painel de Administração</div>
+
+  <!-- FORM STATE -->
+  <div id="form-state">
+    <h1>Acesso restrito</h1>
+    <p class="subtitle">Introduz a palavra-passe de administrador para continuar.</p>
+
+    <div class="error-msg" id="error-msg">
+      <span>🔒</span>
+      <span id="error-text">Palavra-passe incorreta. Tenta novamente.</span>
+    </div>
+
+    <div class="field">
+      <label>Palavra-passe de administrador</label>
+      <div class="pw-wrap">
+        <input type="password" id="pw-input" placeholder="••••••••••••"
+               autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') tryLogin()" />
+        <button type="button" class="pw-toggle" onclick="togglePw()" id="pw-eye">👁</button>
+      </div>
+    </div>
+
+    <!-- tentativas restantes -->
+    <div class="attempts-row" id="attempts-row">
+      <div class="attempt-dot" id="dot-0"></div>
+      <div class="attempt-dot" id="dot-1"></div>
+      <div class="attempt-dot" id="dot-2"></div>
+      <span style="font-size:.72rem;color:var(--muted);margin-left:.3rem" id="attempts-text">3 tentativas disponíveis</span>
+    </div>
+
+    <button class="btn-login" id="btn-login" onclick="tryLogin()">
+      Entrar no Painel →
+    </button>
+
+    <a href="flexwork-landing.html" class="back-link">← Voltar ao início</a>
+
+    <div class="security-note">
+      <span class="icon">🔐</span>
+      <span>Esta página é protegida por palavra-passe. Não partilhes o link nem a palavra-passe com terceiros. Em produção, este acesso será substituído por autenticação segura via Supabase.</span>
+    </div>
+  </div>
+
+  <!-- LOCKED STATE -->
+  <div id="locked-state" class="locked-state">
+    <div class="lock-icon">🔒</div>
+    <h3>Acesso bloqueado</h3>
+    <p>Demasiadas tentativas falhadas. Aguarda antes de tentar novamente.</p>
+    <div class="countdown" id="countdown">30<span> seg</span></div>
+    <p style="font-size:.75rem;">O bloqueio é automático por segurança.</p>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div id="success-state" class="success-state">
+    <div class="success-icon">✓</div>
+    <h3>Acesso autorizado</h3>
+    <p>A redirecionar para o painel de administração…</p>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+</div>
+
+<script>
+  // ── CONFIGURAÇÃO ──
+  // IMPORTANTE: Muda esta palavra-passe antes de colocar online!
+  const ADMIN_PASSWORD = 'Hjklzxcvbnm@+-9882585933124';
+  const MAX_ATTEMPTS   = 3;
+  const LOCKOUT_SECS   = 30;
+
+  let attempts     = 0;
+  let lockoutTimer = null;
+
+  // ── LOGIN ──
+  function tryLogin() {
+    const input = document.getElementById('pw-input');
+    const val   = input.value;
+
+    if (!val.trim()) {
+      showError('Introduz a palavra-passe.');
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 1500);
+      return;
+    }
+
+    if (val === ADMIN_PASSWORD) {
+      showSuccess();
+    } else {
+      attempts++;
+      updateDots();
+      input.value = '';
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 1000);
+
+      if (attempts >= MAX_ATTEMPTS) {
+        startLockout();
+      } else {
+        const remaining = MAX_ATTEMPTS - attempts;
+        showError(`Palavra-passe incorreta. ${remaining} tentativa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`);
+      }
+    }
+  }
+
+  function showError(msg) {
+    const err = document.getElementById('error-msg');
+    document.getElementById('error-text').textContent = msg;
+    err.classList.add('visible');
+    setTimeout(() => err.classList.remove('visible'), 3500);
+  }
+
+  function updateDots() {
+    for (let i = 0; i < attempts; i++) {
+      const dot = document.getElementById('dot-' + i);
+      if (dot) dot.classList.add('used');
+    }
+    const remaining = MAX_ATTEMPTS - attempts;
+    const txt = document.getElementById('attempts-text');
+    if (txt) txt.textContent = remaining > 0
+      ? `${remaining} tentativa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`
+      : 'Sem tentativas restantes';
+  }
+
+  function startLockout() {
+    document.getElementById('form-state').style.display = 'none';
+    const ls = document.getElementById('locked-state');
+    ls.classList.add('visible');
+
+    let secs = LOCKOUT_SECS;
+    const cd = document.getElementById('countdown');
+    cd.innerHTML = `${secs}<span> seg</span>`;
+
+    lockoutTimer = setInterval(() => {
+      secs--;
+      cd.innerHTML = `${secs}<span> seg</span>`;
+      if (secs <= 0) {
+        clearInterval(lockoutTimer);
+        // reset
+        attempts = 0;
+        ls.classList.remove('visible');
+        document.getElementById('form-state').style.display = 'block';
+        document.getElementById('error-msg').classList.remove('visible');
+        for (let i = 0; i < MAX_ATTEMPTS; i++) {
+          const dot = document.getElementById('dot-' + i);
+          if (dot) dot.classList.remove('used');
+        }
+        document.getElementById('attempts-text').textContent = '3 tentativas disponíveis';
+        document.getElementById('pw-input').focus();
+      }
+    }, 1000);
+  }
+
+  function showSuccess() {
+    document.getElementById('form-state').style.display = 'none';
+    document.getElementById('locked-state').classList.remove('visible');
+    const ss = document.getElementById('success-state');
+    ss.classList.add('visible');
+
+    // animate progress bar
+    setTimeout(() => {
+      document.getElementById('progress-fill').style.width = '100%';
+    }, 100);
+
+    // redirect after 2 seconds
+    setTimeout(() => {
+      sessionStorage.setItem('fw_admin_auth', '1');
+      window.location.href = 'flexwork-admin.html';
+    }, 2000);
+  }
+
+  function togglePw() {
+    const input = document.getElementById('pw-input');
+    const btn   = document.getElementById('pw-eye');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  // auto-focus
+  document.getElementById('pw-input').focus();
+</script>
+
+</body>
+</html>

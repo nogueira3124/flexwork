@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Dashboard Trabalhador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #09090b;
+      --surface: #0f0f11;
+      --card:    #141416;
+      --card2:   #1a1a1d;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --white:   #eeeaf5;
+      --muted:   #72707a;
+      --muted2:  #38363e;
+      --accent:  #e8511a;
+      --accent2: #f0a500;
+      --green:   #3ecf8e;
+      --red:     #e85555;
+      --blue:    #4a9eff;
+      --purple:  #a78bfa;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ── SIDENAV ── */
+    .sidenav {
+      width: 220px; min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: sticky; top: 0; height: 100vh;
+      overflow-y: auto; flex-shrink: 0;
+    }
+    .sidenav::-webkit-scrollbar { width: 3px; }
+    .sidenav::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 3px; }
+
+    .sidenav-logo {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 1.2rem; letter-spacing: -.02em;
+      color: var(--white); text-decoration: none;
+      padding: .3rem .5rem; margin-bottom: 1.8rem; display: block;
+    }
+    .sidenav-logo span { color: var(--accent); }
+
+    .nav-section-label {
+      font-size: .62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .12em;
+      color: var(--muted2); padding: 0 .5rem;
+      margin-bottom: .4rem; margin-top: 1.2rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .55rem .75rem; border-radius: 9px;
+      color: var(--muted); text-decoration: none;
+      font-size: .85rem; cursor: pointer;
+      transition: background .15s, color .15s;
+      border: none; background: none;
+      width: 100%; text-align: left;
+      margin-bottom: .1rem;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.05); color: var(--white); }
+    .nav-item.active { background: rgba(232,81,26,.1); color: var(--accent); }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto; background: var(--accent); color: #fff;
+      font-size: .62rem; font-weight: 700;
+      padding: .1rem .45rem; border-radius: 100px;
+      min-width: 18px; text-align: center;
+    }
+    .nav-badge.green { background: var(--green); }
+
+    .sidenav-bottom {
+      margin-top: auto; padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .worker-pill {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .55rem .6rem; border-radius: 9px;
+      cursor: pointer; transition: background .15s;
+    }
+    .worker-pill:hover { background: rgba(255,255,255,.05); }
+    .worker-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(232,81,26,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 800;
+      font-family: 'Syne', sans-serif; color: var(--accent); flex-shrink: 0;
+    }
+    .worker-info { min-width: 0; }
+    .worker-name { font-size: .82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .worker-role { font-size: .7rem; color: var(--muted); }
+
+    /* ── MAIN ── */
+    .main-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+      background: var(--surface); gap: 1rem; flex-wrap: wrap;
+    }
+    .topbar-left h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em;
+    }
+    .topbar-left p { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+    .topbar-right { display: flex; align-items: center; gap: .75rem; }
+
+    .btn-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; font-size: .9rem;
+      transition: background .15s; position: relative;
+    }
+    .btn-icon:hover { background: rgba(255,255,255,.1); }
+    .btn-icon .dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--green); border-radius: 50%; border: 1px solid var(--surface); }
+
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; padding: .55rem 1.1rem;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: .4rem;
+      transition: opacity .2s, transform .2s; white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+
+    .content { padding: 1.8rem 2rem 3rem; flex: 1; }
+
+    .view { display: none; animation: fadeIn .25s; }
+    .view.active { display: block; }
+
+    /* ── PROFILE HERO ── */
+    .profile-hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex; align-items: center; gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative; overflow: hidden;
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute; top: -40%; right: -5%;
+      width: 50%; height: 180%;
+      background: radial-gradient(ellipse, rgba(232,81,26,.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .ph-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(232,81,26,.2);
+      border: 2px solid rgba(232,81,26,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+      color: var(--accent); flex-shrink: 0;
+    }
+    .ph-info { flex: 1; min-width: 0; }
+    .ph-name { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; }
+    .ph-meta { font-size: .8rem; color: var(--muted); margin-top: .2rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+    .ph-meta .sep { color: var(--muted2); }
+    .ph-rating { color: var(--accent2); font-weight: 500; }
+    .ph-stats {
+      display: flex; gap: 2rem; flex-shrink: 0;
+    }
+    .ph-stat { text-align: center; }
+    .ph-stat-num { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; line-height: 1; }
+    .ph-stat-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: .2rem; }
+    .ph-skills { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+    .skill-tag {
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      color: rgba(255,255,255,.6); font-size: .7rem;
+      padding: .2rem .55rem; border-radius: 100px;
+    }
+
+    /* ── METRICS ── */
+    .metrics-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .metric-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.2rem;
+      position: relative; overflow: hidden;
+      transition: border-color .2s, transform .2s;
+    }
+    .metric-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .metric-card::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0; height: 2px; border-radius: 0 0 12px 12px;
+    }
+    .mc-orange::after { background: var(--accent); }
+    .mc-green::after  { background: var(--green); }
+    .mc-yellow::after { background: var(--accent2); }
+    .mc-purple::after { background: var(--purple); }
+    .metric-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+    .metric-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: .3rem; }
+    .metric-sub { font-size: .75rem; color: var(--muted); }
+    .metric-sub .up { color: var(--green); }
+
+    /* ── SECTION CARD ── */
+    .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .sc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+    }
+    .sc-title { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+    .sc-action { font-size: .75rem; color: var(--accent); cursor: pointer; transition: opacity .2s; }
+    .sc-action:hover { opacity: .7; }
+
+    /* ── CANDIDATURA CARDS ── */
+    .cand-card-list { display: flex; flex-direction: column; gap: 0; }
+    .cand-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .9rem 1.2rem; border-bottom: 1px solid var(--border);
+      transition: background .15s; cursor: pointer;
+    }
+    .cand-card:last-child { border-bottom: none; }
+    .cand-card:hover { background: rgba(255,255,255,.025); }
+
+    .cc-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .cc-info { flex: 1; min-width: 0; }
+    .cc-title { font-size: .9rem; font-weight: 500; margin-bottom: .15rem; }
+    .cc-meta { font-size: .75rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+    .cc-sep { color: var(--muted2); }
+    .cc-right { display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; flex-shrink: 0; }
+    .cc-wage { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; }
+    .cc-date { font-size: .7rem; color: var(--muted); }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .68rem; font-weight: 600; padding: .2rem .6rem;
+      border-radius: 100px; white-space: nowrap;
+    }
+    .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .sp-pendente  { background: rgba(240,165,0,.1);    color: var(--accent2); }
+    .sp-aceite    { background: rgba(62,207,142,.1);   color: var(--green); }
+    .sp-recusada  { background: rgba(232,85,85,.1);    color: var(--red); }
+    .sp-concluida { background: rgba(74,158,255,.1);   color: var(--blue); }
+    .sp-cancelada { background: rgba(122,116,128,.12); color: var(--muted); }
+
+    /* ── UPCOMING WORK ── */
+    .upcoming-list { padding: .5rem 1.2rem 1rem; display: flex; flex-direction: column; gap: .75rem; }
+    .upcoming-item {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.1rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color .2s;
+    }
+    .upcoming-item.today { border-color: rgba(62,207,142,.3); background: rgba(62,207,142,.04); }
+    .upcoming-item:hover { border-color: rgba(232,81,26,.2); }
+
+    .upcoming-date-block {
+      text-align: center; min-width: 44px; flex-shrink: 0;
+    }
+    .ud-day { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; line-height: 1; }
+    .ud-month { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .ud-today { font-size: .65rem; color: var(--green); font-weight: 600; text-transform: uppercase; }
+
+    .upcoming-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
+    .upcoming-info { flex: 1; min-width: 0; }
+    .ui-title { font-size: .88rem; font-weight: 500; margin-bottom: .15rem; }
+    .ui-meta  { font-size: .75rem; color: var(--muted); display: flex; gap: .4rem; flex-wrap: wrap; }
+    .upcoming-wage { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--accent2); flex-shrink: 0; }
+
+    /* ── DISPONIBILIDADE ── */
+    .avail-grid {
+      padding: 1.2rem;
+      display: grid; grid-template-columns: repeat(7,1fr); gap: .5rem;
+    }
+    .avail-day { text-align: center; }
+    .avail-label { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
+    .avail-slots { display: flex; flex-direction: column; gap: .25rem; }
+    .avail-slot {
+      height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; cursor: pointer;
+      transition: all .15s; user-select: none;
+      border: 1px solid transparent;
+    }
+    .avail-slot.off   { background: rgba(255,255,255,.04); color: var(--muted2); border-color: var(--border); }
+    .avail-slot.on    { background: rgba(62,207,142,.15);  color: var(--green);  border-color: rgba(62,207,142,.3); }
+    .avail-slot.off:hover { background: rgba(255,255,255,.08); color: var(--muted); }
+    .avail-slot.on:hover  { background: rgba(232,85,85,.12); color: var(--red); border-color: rgba(232,85,85,.3); }
+
+    .avail-legend {
+      display: flex; gap: 1rem; padding: 0 1.2rem 1rem;
+      font-size: .72rem; color: var(--muted);
+    }
+    .avail-legend span { display: flex; align-items: center; gap: .35rem; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── AVALIAÇÕES ── */
+    .aval-summary {
+      display: flex; align-items: center; gap: 2rem;
+      padding: 1.2rem; border-bottom: 1px solid var(--border);
+    }
+    .aval-big { text-align: center; }
+    .aval-big .num { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; line-height: 1; }
+    .aval-big .stars { color: var(--accent2); font-size: 1rem; letter-spacing: .1em; margin: .3rem 0; }
+    .aval-big .total { font-size: .75rem; color: var(--muted); }
+    .aval-bars { flex: 1; display: flex; flex-direction: column; gap: .35rem; }
+    .aval-bar-row { display: flex; align-items: center; gap: .6rem; font-size: .75rem; }
+    .aval-bar-row span:first-child { color: var(--muted); min-width: 14px; text-align: right; }
+    .aval-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,.06); border-radius: 100px; overflow: hidden; }
+    .aval-bar-fill { height: 100%; background: var(--accent2); border-radius: 100px; }
+    .aval-bar-row span:last-child { color: var(--muted); min-width: 24px; }
+
+    .aval-list { padding: 0; }
+    .aval-item {
+      padding: .9rem 1.2rem; border-bottom: 1px solid var(--border);
+    }
+    .aval-item:last-child { border-bottom: none; }
+    .aval-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; }
+    .aval-company { display: flex; align-items: center; gap: .5rem; }
+    .aval-co-avatar { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: .75rem; }
+    .aval-item-stars { color: var(--accent2); font-size: .8rem; }
+    .aval-item-date  { font-size: .7rem; color: var(--muted); }
+    .aval-item-job   { font-size: .75rem; color: var(--accent); margin-bottom: .35rem; }
+    .aval-item-text  { font-size: .83rem; color: rgba(255,255,255,.6); line-height: 1.6; font-style: italic; }
+
+    /* ── PERFIL EDIT ── */
+    .perfil-wrap { max-width: 620px; }
+    .field-group { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .9rem; }
+    .field-group label { font-size: .78rem; color: rgba(255,255,255,.55); font-weight: 500; letter-spacing: .02em; }
+    .field-group label .req { color: var(--accent); }
+    .field-group input, .field-group select, .field-group textarea {
+      background: rgba(255,255,255,.04); border: 1px solid var(--border);
+      color: var(--white); font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 300;
+      padding: .65rem .9rem; border-radius: 9px; outline: none;
+      transition: border-color .2s, background .2s; width: 100%;
+    }
+    .field-group textarea { resize: vertical; min-height: 70px; }
+    .field-group input::placeholder { color: var(--muted); }
+    .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--accent); background: rgba(232,81,26,.05); }
+    .field-group select option { background: #16141a; }
+    .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .skills-edit { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .3rem; }
+    .skill-edit-tag {
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      color: rgba(255,255,255,.6); font-size: .75rem;
+      padding: .25rem .65rem; border-radius: 100px;
+      display: flex; align-items: center; gap: .35rem; cursor: pointer;
+      transition: all .15s;
+    }
+    .skill-edit-tag.active { background: rgba(232,81,26,.12); border-color: rgba(232,81,26,.35); color: var(--accent); }
+    .skill-edit-tag:hover:not(.active) { border-color: var(--border2); color: var(--white); }
+
+    /* ── GRID HELPERS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.2rem; }
+
+    /* ── ACTIVITY ── */
+    .activity-item {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .75rem 1.2rem; border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: .35rem; }
+    .act-green  { background: var(--green); }
+    .act-orange { background: var(--accent); }
+    .act-blue   { background: var(--blue); }
+    .act-yellow { background: var(--accent2); }
+    .act-red    { background: var(--red); }
+    .activity-text { flex: 1; font-size: .82rem; color: rgba(255,255,255,.7); line-height: 1.4; }
+    .activity-text strong { color: var(--white); font-weight: 500; }
+    .activity-time { font-size: .7rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+
+    /* ── EARNINGS CHART ── */
+    .chart-wrap { padding: 1rem 1.2rem 1.2rem; }
+    .chart-bars { display: flex; align-items: flex-end; gap: .4rem; height: 80px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; background: rgba(62,207,142,.2); min-height: 4px; transition: background .2s; cursor: pointer; }
+    .bar:hover, .bar.active { background: var(--green); }
+    .bar-label { font-size: .62rem; color: var(--muted); }
+    .chart-total { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; padding: .3rem 1.2rem 0; }
+    .chart-sub   { font-size: .75rem; color: var(--muted); padding: .1rem 1.2rem .8rem; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .metrics-row { grid-template-columns: repeat(2, 1fr); }
+      .grid-3-1    { grid-template-columns: 1fr; }
+      .ph-stats    { gap: 1.2rem; }
+    }
+    @media (max-width: 860px) {
+      .sidenav { display: none; }
+      .grid-2  { grid-template-columns: 1fr; }
+      .profile-hero { flex-wrap: wrap; }
+      .ph-stats { gap: 1.2rem; }
+    }
+    @media (max-width: 600px) {
+      .metrics-row { grid-template-columns: 1fr 1fr; }
+      .content { padding: 1rem 1rem 3rem; }
+      .topbar { padding: .8rem 1rem; }
+      .avail-grid { grid-template-columns: repeat(4, 1fr); }
+      .avail-day:nth-child(n+5) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDENAV -->
+<aside class="sidenav">
+  <a href="flexwork-landing.html" class="sidenav-logo">Flex<span>Work</span></a>
+
+  <span class="nav-section-label">Principal</span>
+  <button class="nav-item active" onclick="showView('dashboard')">
+    <span class="nav-icon">⬛</span> Dashboard
+  </button>
+  <button class="nav-item" onclick="showView('candidaturas')">
+    <span class="nav-icon">📩</span> Candidaturas
+    <span class="nav-badge" id="badge-cands">2</span>
+  </button>
+  <button class="nav-item" onclick="showView('proximos')">
+    <span class="nav-icon">📅</span> Próximos Trabalhos
+    <span class="nav-badge green" id="badge-prox">1</span>
+  </button>
+  <button class="nav-item" onclick="showView('ganhos')">
+    <span class="nav-icon">💶</span> Ganhos
+  </button>
+  <button class="nav-item" onclick="showView('avaliacoes')">
+    <span class="nav-icon">⭐</span> Avaliações
+  </button>
+
+  <span class="nav-section-label">Conta</span>
+  <button class="nav-item" onclick="showView('perfil')">
+    <span class="nav-icon">👤</span> O Meu Perfil
+  </button>
+  <button class="nav-item" onclick="showView('disponibilidade')">
+    <span class="nav-icon">🗓</span> Disponibilidade
+  </button>
+  <button class="nav-item">
+    <span class="nav-icon">🔔</span> Notificações
+  </button>
+  <button class="nav-item">
+    <span class="nav-icon">⚙️</span> Definições
+  </button>
+
+  <div class="sidenav-bottom">
+    <div class="worker-pill">
+      <div class="worker-avatar">JS</div>
+      <div class="worker-info">
+        <div class="worker-name">João Silva</div>
+        <div class="worker-role">Conta Trabalhador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-area">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">Dashboard</h1>
+      <p id="page-sub">Olá, João Silva 👋</p>
+    </div>
+    <div class="topbar-right">
+      <div class="btn-icon">🔔<span class="dot"></span></div>
+      <button class="btn-primary" onclick="window.location.href='flexwork-vagas.html'">🔍 Ver Vagas</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="view active" id="view-dashboard">
+
+      <!-- Profile Hero -->
+      <div class="profile-hero">
+        <div class="ph-avatar">JS</div>
+        <div class="ph-info">
+          <div class="ph-name">João Silva</div>
+          <div class="ph-meta">
+            <span>📍 Lisboa</span>
+            <span class="sep">·</span>
+            <span class="ph-rating">★ 4.9</span>
+            <span class="sep">·</span>
+            <span>14 trabalhos realizados</span>
+            <span class="sep">·</span>
+            <span style="color:var(--green)">● Disponível</span>
+          </div>
+          <div class="ph-skills">
+            <span class="skill-tag">🍽 Restauração</span>
+            <span class="skill-tag">☕ Barista</span>
+            <span class="skill-tag">🎪 Eventos</span>
+            <span class="skill-tag">🧹 Limpeza</span>
+          </div>
+        </div>
+        <div class="ph-stats">
+          <div class="ph-stat">
+            <div class="ph-stat-num">14</div>
+            <div class="ph-stat-label">Trabalhos</div>
+          </div>
+          <div class="ph-stat">
+            <div class="ph-stat-num" style="color:var(--accent2)">4.9★</div>
+            <div class="ph-stat-label">Avaliação</div>
+          </div>
+          <div class="ph-stat">
+            <div class="ph-stat-num" style="color:var(--green)">€342</div>
+            <div class="ph-stat-label">Este mês</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-row">
+        <div class="metric-card mc-orange">
+          <div class="metric-label">Candidaturas Ativas</div>
+          <div class="metric-value">3</div>
+          <div class="metric-sub"><span class="up">2 pendentes</span> · 1 aceite</div>
+        </div>
+        <div class="metric-card mc-green">
+          <div class="metric-label">Próximo Trabalho</div>
+          <div class="metric-value" style="font-size:1.3rem;padding-top:.3rem">Amanhã</div>
+          <div class="metric-sub">Garçom · 18h00</div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-label">Ganhos Este Mês</div>
+          <div class="metric-value">€342</div>
+          <div class="metric-sub"><span class="up">↑ €120</span> vs mês passado</div>
+        </div>
+        <div class="metric-card mc-purple">
+          <div class="metric-label">Avaliação Média</div>
+          <div class="metric-value">4.9<span style="font-size:1rem;color:var(--accent2)">★</span></div>
+          <div class="metric-sub">Baseada em <strong style="color:var(--white)">12</strong> avaliações</div>
+        </div>
+      </div>
+
+      <div class="grid-3-1">
+        <!-- Candidaturas recentes -->
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span>📩</span> Candidaturas Recentes</div>
+            <a class="sc-action" onclick="showView('candidaturas')">Ver todas →</a>
+          </div>
+          <div class="cand-card-list" id="dash-cands"></div>
+        </div>
+
+        <!-- Activity -->
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span>⚡</span> Atividade</div>
+          </div>
+          <div id="activity-feed">
+            <div class="activity-item">
+              <div class="activity-dot act-green"></div>
+              <div class="activity-text">Candidatura aceite para <strong>Garçom para Evento</strong></div>
+              <div class="activity-time">2h</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-orange"></div>
+              <div class="activity-text">Candidataste a <strong>Barista para Brunch</strong></div>
+              <div class="activity-time">5h</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-blue"></div>
+              <div class="activity-text">Lembrete: trabalho <strong>Empregado de Mesa</strong> amanhã às 12h</div>
+              <div class="activity-time">1d</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-yellow"></div>
+              <div class="activity-text">Avaliação de <strong>Restaurante Solar</strong> disponível</div>
+              <div class="activity-time">2d</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-red"></div>
+              <div class="activity-text">Candidatura <strong>Repositor Sazonal</strong> recusada</div>
+              <div class="activity-time">3d</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximo trabalho + Ganhos -->
+      <div class="grid-2" style="margin-top:1.2rem">
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span>📅</span> Próximos Trabalhos</div>
+            <a class="sc-action" onclick="showView('proximos')">Ver todos →</a>
+          </div>
+          <div class="upcoming-list" id="dash-upcoming"></div>
+        </div>
+
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span>💶</span> Ganhos Mensais</div>
+            <span style="font-size:.72rem;color:var(--muted)">2026</span>
+          </div>
+          <div class="chart-total">€342</div>
+          <div class="chart-sub">Março · <span style="color:var(--green)">↑ 54% vs Fevereiro</span></div>
+          <div class="chart-wrap">
+            <div class="chart-bars" id="dash-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CANDIDATURAS ── -->
+    <div class="view" id="view-candidaturas">
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.2rem;" id="cand-tabs">
+        <button class="btn-tab active-tab" onclick="filterCands(this,'todas')">Todas</button>
+        <button class="btn-tab" onclick="filterCands(this,'pendente')">Pendentes</button>
+        <button class="btn-tab" onclick="filterCands(this,'aceite')">Aceites</button>
+        <button class="btn-tab" onclick="filterCands(this,'concluida')">Concluídas</button>
+        <button class="btn-tab" onclick="filterCands(this,'recusada')">Recusadas</button>
+      </div>
+      <div class="section-card">
+        <div class="sc-header">
+          <div class="sc-title"><span>📩</span> As Minhas Candidaturas <span id="cands-count" style="font-size:.78rem;color:var(--muted);font-weight:400;margin-left:.3rem"></span></div>
+      </div>
+        <div class="cand-card-list" id="all-cands"></div>
+      </div>
+    </div>
+
+    <!-- ── PRÓXIMOS TRABALHOS ── -->
+    <div class="view" id="view-proximos">
+      <div class="section-card">
+        <div class="sc-header">
+          <div class="sc-title"><span>📅</span> Próximos Trabalhos Confirmados</div>
+        </div>
+        <div class="upcoming-list" id="all-upcoming"></div>
+      </div>
+    </div>
+
+    <!-- ── GANHOS ── -->
+    <div class="view" id="view-ganhos">
+      <div class="metrics-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.2rem">
+        <div class="metric-card mc-green">
+          <div class="metric-label">Total Este Mês</div>
+          <div class="metric-value">€342</div>
+          <div class="metric-sub"><span class="up">↑ 54%</span> vs Fevereiro</div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-label">Total Este Ano</div>
+          <div class="metric-value">€890</div>
+          <div class="metric-sub">3 meses · Jan–Mar</div>
+        </div>
+        <div class="metric-card mc-orange">
+          <div class="metric-label">Média por Trabalho</div>
+          <div class="metric-value">€63</div>
+          <div class="metric-sub">Baseada em 14 trabalhos</div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="sc-header">
+          <div class="sc-title"><span>📊</span> Histórico de Ganhos</div>
+        </div>
+        <div class="chart-wrap" style="padding-bottom:1.5rem">
+          <div class="chart-bars" id="ganhos-chart" style="height:120px"></div>
+        </div>
+        <div style="border-top:1px solid var(--border)">
+          <div class="activity-item" style="padding:.9rem 1.2rem">
+            <div style="flex:1;font-size:.82rem;font-weight:500">Garçom para Evento Corporativo</div>
+            <div style="font-size:.78rem;color:var(--muted);margin-right:1rem">14 Mar</div>
+            <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--green)">+€45</div>
+          </div>
+          <div class="activity-item" style="padding:.9rem 1.2rem">
+            <div style="flex:1;font-size:.82rem;font-weight:500">Barista Brunch Domingo</div>
+            <div style="font-size:.78rem;color:var(--muted);margin-right:1rem">10 Mar</div>
+            <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--green)">+€45</div>
+          </div>
+          <div class="activity-item" style="padding:.9rem 1.2rem">
+            <div style="flex:1;font-size:.82rem;font-weight:500">Empregado de Mesa — Almoços</div>
+            <div style="font-size:.78rem;color:var(--muted);margin-right:1rem">5–7 Mar</div>
+            <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--green)">+€102</div>
+          </div>
+          <div class="activity-item" style="padding:.9rem 1.2rem;border-bottom:none">
+            <div style="flex:1;font-size:.82rem;font-weight:500">Animador Evento Infantil</div>
+            <div style="font-size:.78rem;color:var(--muted);margin-right:1rem">1 Mar</div>
+            <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--green)">+€44</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AVALIAÇÕES ── -->
+    <div class="view" id="view-avaliacoes">
+      <div class="section-card">
+        <div class="sc-header">
+          <div class="sc-title"><span>⭐</span> As Minhas Avaliações</div>
+        </div>
+        <div class="aval-summary">
+          <div class="aval-big">
+            <div class="num">4.9</div>
+            <div class="stars">★★★★★</div>
+            <div class="total">12 avaliações</div>
+          </div>
+          <div class="aval-bars">
+            <div class="aval-bar-row"><span>5★</span><div class="aval-bar-wrap"><div class="aval-bar-fill" style="width:85%"></div></div><span>10</span></div>
+            <div class="aval-bar-row"><span>4★</span><div class="aval-bar-wrap"><div class="aval-bar-fill" style="width:17%"></div></div><span>2</span></div>
+            <div class="aval-bar-row"><span>3★</span><div class="aval-bar-wrap"><div class="aval-bar-fill" style="width:0%"></div></div><span>0</span></div>
+            <div class="aval-bar-row"><span>2★</span><div class="aval-bar-wrap"><div class="aval-bar-fill" style="width:0%"></div></div><span>0</span></div>
+            <div class="aval-bar-row"><span>1★</span><div class="aval-bar-wrap"><div class="aval-bar-fill" style="width:0%"></div></div><span>0</span></div>
+          </div>
+        </div>
+        <div class="aval-list">
+          <div class="aval-item">
+            <div class="aval-item-header">
+              <div class="aval-company">
+                <div class="aval-co-avatar" style="background:rgba(232,81,26,.15)">🍽</div>
+                <span style="font-size:.85rem;font-weight:500">Restaurante Solar</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:.6rem">
+                <span class="aval-item-stars">★★★★★</span>
+                <span class="aval-item-date">14 Mar 2026</span>
+              </div>
+            </div>
+            <div class="aval-item-job">Garçom para Evento Corporativo</div>
+            <div class="aval-item-text">"João foi excecional. Profissional, pontual e com ótima postura. Os clientes adoraram. Definitivamente vamos voltar a chamar."</div>
+          </div>
+          <div class="aval-item">
+            <div class="aval-item-header">
+              <div class="aval-company">
+                <div class="aval-co-avatar" style="background:rgba(232,81,26,.1)">☕</div>
+                <span style="font-size:.85rem;font-weight:500">Café Azul</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:.6rem">
+                <span class="aval-item-stars">★★★★★</span>
+                <span class="aval-item-date">10 Mar 2026</span>
+              </div>
+            </div>
+            <div class="aval-item-job">Barista para Brunch de Domingo</div>
+            <div class="aval-item-text">"Excelente barista, o latte art ficou impecável. Muito simpático com os clientes. Recomendamos sem hesitar."</div>
+          </div>
+          <div class="aval-item">
+            <div class="aval-item-header">
+              <div class="aval-company">
+                <div class="aval-co-avatar" style="background:rgba(232,81,26,.08)">🍷</div>
+                <span style="font-size:.85rem;font-weight:500">Taberna do Porto</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:.6rem">
+                <span class="aval-item-stars">★★★★☆</span>
+                <span class="aval-item-date">7 Mar 2026</span>
+              </div>
+            </div>
+            <div class="aval-item-job">Empregado de Mesa — Almoços</div>
+            <div class="aval-item-text">"Bom trabalho, pontual e dedicado. Pequenos detalhes de serviço a melhorar mas boa atitude."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DISPONIBILIDADE ── -->
+    <div class="view" id="view-disponibilidade">
+      <div class="section-card" style="max-width:680px">
+        <div class="sc-header">
+          <div class="sc-title"><span>🗓</span> A Minha Disponibilidade</div>
+          <button style="background:var(--accent);color:#fff;border:none;border-radius:7px;padding:.35rem .9rem;font-size:.78rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="showToast('Disponibilidade guardada!')">Guardar</button>
+        </div>
+        <div style="padding:1rem 1.2rem .5rem;font-size:.78rem;color:var(--muted)">Clica nos períodos para alternar disponibilidade</div>
+        <div class="avail-grid" id="avail-grid"></div>
+        <div class="avail-legend">
+          <span><div class="legend-dot" style="background:var(--green)"></div> Disponível</span>
+          <span><div class="legend-dot" style="background:var(--muted2)"></div> Indisponível</span>
+        </div>
+        <div style="padding:0 1.2rem 1.2rem">
+          <div class="field-group">
+            <label>Raio máximo de deslocação</label>
+            <select>
+              <option>5 km</option>
+              <option selected>15 km</option>
+              <option>30 km</option>
+              <option>50 km</option>
+              <option>Sem limite</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PERFIL ── -->
+    <div class="view" id="view-perfil">
+      <div class="section-card perfil-wrap">
+        <div class="sc-header">
+          <div class="sc-title"><span>👤</span> O Meu Perfil</div>
+          <button style="background:var(--accent);color:#fff;border:none;border-radius:7px;padding:.35rem .9rem;font-size:.78rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="showToast('Perfil guardado!')">Guardar alterações</button>
+        </div>
+        <div style="padding:1.5rem">
+          <div class="field-row-2" style="margin-bottom:.9rem">
+            <div class="field-group">
+              <label>Nome Completo <span class="req">*</span></label>
+              <input type="text" value="João Silva" />
+            </div>
+            <div class="field-group">
+              <label>Telefone <span class="req">*</span></label>
+              <input type="tel" value="+351 912 345 678" />
+            </div>
+          </div>
+          <div class="field-row-2" style="margin-bottom:.9rem">
+            <div class="field-group">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" value="joao.silva@email.com" />
+            </div>
+            <div class="field-group">
+              <label>Distrito / Concelho</label>
+              <select>
+                <option selected>Lisboa</option>
+                <option>Porto</option>
+                <option>Setúbal</option>
+                <option>Braga</option>
+                <option>Faro</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Áreas de Competência <span style="color:var(--muted);font-weight:300">(seleciona todas as que se aplicam)</span></label>
+            <div class="skills-edit" id="skills-edit">
+              <div class="skill-edit-tag active" onclick="toggleSkill(this)">🍽 Restauração</div>
+              <div class="skill-edit-tag active" onclick="toggleSkill(this)">☕ Barista</div>
+              <div class="skill-edit-tag" onclick="toggleSkill(this)">🛒 Comércio</div>
+              <div class="skill-edit-tag" onclick="toggleSkill(this)">🧹 Limpeza</div>
+              <div class="skill-edit-tag active" onclick="toggleSkill(this)">🎪 Eventos</div>
+              <div class="skill-edit-tag" onclick="toggleSkill(this)">📦 Logística</div>
+              <div class="skill-edit-tag" onclick="toggleSkill(this)">🚐 Motorista</div>
+              <div class="skill-edit-tag" onclick="toggleSkill(this)">🏨 Hotelaria</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .btn-tab {
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: .78rem; padding: .35rem .85rem; border-radius: 7px;
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-tab:hover { background: rgba(255,255,255,.08); color: var(--white); }
+  .btn-tab.active-tab { background: rgba(232,81,26,.1); border-color: rgba(232,81,26,.3); color: var(--accent); }
+</style>
+
+<script>
+// ── DATA ──
+const CANDIDATURAS = [
+  { id:1, title:'Garçom para Evento Corporativo', company:'Restaurante Solar', icon:'🍽', bg:'rgba(232,81,26,.12)', status:'aceite',    date:'Amanhã 18h', wage:'€9/h',   candidatadoEm:'Há 1 dia' },
+  { id:2, title:'Barista para Brunch de Domingo',  company:'Café Azul',         icon:'☕', bg:'rgba(232,81,26,.1)',  status:'pendente',  date:'Dom 09h',    wage:'€9/h',   candidatadoEm:'Há 5h'   },
+  { id:3, title:'Empregado de Mesa — Almoços',     company:'Taberna do Porto',  icon:'🍷', bg:'rgba(232,81,26,.08)', status:'concluida', date:'5–7 Mar',    wage:'€8.5/h', candidatadoEm:'Há 3 sem' },
+  { id:4, title:'Repositor Sazonal Natal',         company:'Hipermercado Max',  icon:'🛒', bg:'rgba(240,165,0,.12)', status:'recusada',  date:'25 Dez',     wage:'€8/h',   candidatadoEm:'Há 3 meses' },
+  { id:5, title:'Animador de Eventos Infantis',    company:'MagicFun Eventos',  icon:'🎪', bg:'rgba(140,100,220,.12)',status:'concluida',date:'1 Mar',       wage:'€11/h',  candidatadoEm:'Há 3 sem' },
+];
+
+const PROXIMOS = [
+  { id:1, title:'Garçom para Evento Corporativo', company:'Restaurante Solar', icon:'🍽', bg:'rgba(232,81,26,.12)', day:'22', month:'Mar', time:'18:00–23:00', location:'Lisboa, Parque das Nações', wage:'€9/h', today: true },
+];
+
+// ── VIEW SWITCHING ──
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const titles = { dashboard:'Dashboard', candidaturas:'Candidaturas', proximos:'Próximos Trabalhos', ganhos:'Ganhos', avaliacoes:'Avaliações', perfil:'O Meu Perfil', disponibilidade:'Disponibilidade' };
+  const subs   = { dashboard:'Olá, João Silva 👋', candidaturas:'O estado das tuas candidaturas', proximos:'Trabalhos confirmados', ganhos:'O teu histórico de rendimentos', avaliacoes:'O que as empresas dizem de ti', perfil:'Gere as tuas informações', disponibilidade:'Define quando estás disponível' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  document.getElementById('page-sub').textContent   = subs[name]   || '';
+  if (name === 'candidaturas')   renderAllCands('todas');
+  if (name === 'proximos')       renderAllUpcoming();
+  if (name === 'ganhos')         buildGanhosChart();
+  if (name === 'disponibilidade') buildAvailGrid();
+  if (name === 'dashboard')      { renderDashCands(); renderDashUpcoming(); buildDashChart(); }
+}
+
+// ── RENDER CANDIDATURA CARD ──
+function renderCandCard(c, container) {
+  const statusMap = {
+    pendente: 'sp-pendente Pendente',
+    aceite:   'sp-aceite Aceite ✓',
+    recusada: 'sp-recusada Recusada',
+    concluida:'sp-concluida Concluída',
+    cancelada:'sp-cancelada Cancelada',
+  };
+  const [cls, lbl] = (statusMap[c.status] || 'sp-pendente Pendente').split(' ');
+
+  const avalBtn = c.status === 'concluida'
+    ? `<button style="background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.25);color:var(--accent2);border-radius:6px;padding:.25rem .6rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="showToast('Avaliação submetida!')">Avaliar</button>`
+    : '';
+
+  const div = document.createElement('div');
+  div.className = 'cand-card';
+  div.innerHTML = `
+    <div class="cc-icon" style="background:${c.bg}">${c.icon}</div>
+    <div class="cc-info">
+      <div class="cc-title">${c.title}</div>
+      <div class="cc-meta">
+        <span>${c.company}</span>
+        <span class="cc-sep">·</span>
+        <span>${c.date}</span>
+        <span class="cc-sep">·</span>
+        <span style="color:var(--muted2)">${c.candidatadoEm}</span>
+      </div>
+    </div>
+    <div class="cc-right">
+      <span class="status-pill ${cls}"><span class="pill-dot"></span>${lbl}</span>
+      <span class="cc-wage">${c.wage}</span>
+      ${avalBtn}
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function renderDashCands() {
+  const c = document.getElementById('dash-cands');
+  c.innerHTML = '';
+  CANDIDATURAS.slice(0, 3).forEach(cd => renderCandCard(cd, c));
+}
+
+let currentCandFilter = 'todas';
+function filterCands(btn, filter) {
+  currentCandFilter = filter;
+  document.querySelectorAll('#cand-tabs .btn-tab').forEach(b => b.classList.remove('active-tab'));
+  btn.classList.add('active-tab');
+  renderAllCands(filter);
+}
+function renderAllCands(filter) {
+  const c = document.getElementById('all-cands');
+  c.innerHTML = '';
+  const list = filter === 'todas' ? CANDIDATURAS : CANDIDATURAS.filter(cd => cd.status === filter);
+  document.getElementById('cands-count').textContent = `(${list.length})`;
+  list.forEach(cd => renderCandCard(cd, c));
+}
+
+// ── RENDER UPCOMING ──
+function renderUpcomingItem(item, container) {
+  const div = document.createElement('div');
+  div.className = 'upcoming-item' + (item.today ? ' today' : '');
+  div.innerHTML = `
+    <div class="upcoming-date-block">
+      <div class="ud-day">${item.day}</div>
+      <div class="ud-month">${item.month}</div>
+      ${item.today ? `<div class="ud-today">Amanhã</div>` : ''}
+    </div>
+    <div class="upcoming-divider"></div>
+    <div class="upcoming-info">
+      <div class="ui-title">${item.title}</div>
+      <div class="ui-meta">
+        <span>🕐 ${item.time}</span>
+        <span>📍 ${item.location}</span>
+      </div>
+    </div>
+    <div class="upcoming-wage">${item.wage}</div>
+  `;
+  container.appendChild(div);
+}
+
+function renderDashUpcoming() {
+  const c = document.getElementById('dash-upcoming');
+  c.innerHTML = '';
+  PROXIMOS.forEach(p => renderUpcomingItem(p, c));
+  if (PROXIMOS.length === 0) {
+    c.innerHTML = `<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.85rem;">Sem trabalhos confirmados.</div>`;
+  }
+}
+
+function renderAllUpcoming() {
+  const c = document.getElementById('all-upcoming');
+  c.innerHTML = '';
+  PROXIMOS.forEach(p => renderUpcomingItem(p, c));
+  if (PROXIMOS.length === 0) {
+    c.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.85rem;">Sem trabalhos confirmados por enquanto.</div>`;
+  }
+}
+
+// ── CHARTS ──
+function buildChart(containerId, data, labels, color, maxH) {
+  const wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const max = Math.max(...data);
+  data.forEach((v, i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i === data.length - 1 ? ' active' : '');
+    bar.style.height = ((v / max) * (maxH || 72)) + 'px';
+    bar.style.background = i === data.length - 1 ? color : color.replace(')', ', .3)').replace('rgb','rgba');
+    bar.onclick = () => {
+      document.querySelectorAll(`#${containerId} .bar`).forEach(b => { b.classList.remove('active'); b.style.background = color.replace(')', ', .3)').replace('rgb','rgba'); });
+      bar.classList.add('active'); bar.style.background = color;
+    };
+    bar.title = labels[i] + ': ' + v;
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = labels[i];
+    col.appendChild(bar); col.appendChild(lbl);
+    wrap.appendChild(col);
+  });
+}
+
+function buildDashChart()    { buildChart('dash-chart',   [120, 222, 342], ['Jan','Fev','Mar'], 'rgb(62,207,142)'); }
+function buildGanhosChart()  { buildChart('ganhos-chart', [120, 222, 342], ['Jan','Fev','Mar'], 'rgb(62,207,142)', 100); }
+
+// ── AVAILABILITY GRID ──
+const DAYS    = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const PERIODS = ['Manhã','Tarde','Noite'];
+const initAvail = [
+  [true, true, false],
+  [true, true, false],
+  [true, false, false],
+  [true, true, true],
+  [true, true, false],
+  [false, true, true],
+  [false, false, true],
+];
+
+function buildAvailGrid() {
+  const grid = document.getElementById('avail-grid');
+  grid.innerHTML = '';
+  DAYS.forEach((day, di) => {
+    const col = document.createElement('div');
+    col.className = 'avail-day';
+    col.innerHTML = `<div class="avail-label">${day}</div>`;
+    const slots = document.createElement('div');
+    slots.className = 'avail-slots';
+    PERIODS.forEach((period, pi) => {
+      const slot = document.createElement('div');
+      slot.className = 'avail-slot ' + (initAvail[di][pi] ? 'on' : 'off');
+      slot.title = `${day} · ${period}`;
+      slot.textContent = period[0];
+      slot.onclick = () => {
+        slot.classList.toggle('on');
+        slot.classList.toggle('off');
+      };
+      slots.appendChild(slot);
+    });
+    col.appendChild(slots);
+    grid.appendChild(col);
+  });
+}
+
+// ── SKILL TOGGLE ──
+function toggleSkill(el) { el.classList.toggle('active'); }
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#17151a;border:1px solid rgba(62,207,142,.3);color:var(--green);padding:.6rem 1.4rem;border-radius:100px;font-size:.83rem;font-family:'DM Sans',sans-serif;font-weight:500;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:fadeUp .3s;white-space:nowrap;`;
+  t.textContent = '✓ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── INIT ──
+renderDashCands();
+renderDashUpcoming();
+buildDashChart();
+</script>
+
+</body>
+</html>

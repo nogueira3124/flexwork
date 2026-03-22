@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Vagas Disponíveis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:    #0a0a0a;
+      --white:    #f5f2ec;
+      --accent:   #e8511a;
+      --accent2:  #f0a500;
+      --card-bg:  #111009;
+      --sidebar:  #0d0c0a;
+      --border:   rgba(255,255,255,0.07);
+      --muted:    #7a7470;
+      --muted2:   #4a4440;
+      --green:    #50b478;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3vw;
+      height: 60px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 1.25rem; letter-spacing: -.02em;
+      color: var(--white); text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-link { color: var(--muted); font-size: .85rem; text-decoration: none; transition: color .2s; }
+    .nav-link:hover { color: var(--white); }
+    .btn-nav {
+      background: var(--accent); color: #fff;
+      padding: .45rem 1.1rem; border-radius: 6px;
+      font-size: .82rem; font-weight: 500;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-nav:hover { opacity: .85; }
+    .nav-user {
+      display: flex; align-items: center; gap: .6rem;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: .3rem .8rem .3rem .3rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .nav-user:hover { background: rgba(255,255,255,.09); }
+    .nav-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(232,81,26,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; font-family: 'Syne', sans-serif;
+      color: var(--accent);
+    }
+    .nav-name { font-size: .82rem; font-weight: 400; }
+
+    /* ── LAYOUT ── */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1.2rem;
+      position: sticky; top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
+
+    .filter-section { margin-bottom: 1.8rem; }
+    .filter-title {
+      font-family: 'Syne', sans-serif;
+      font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--muted);
+      margin-bottom: .8rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .filter-clear {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .68rem; font-weight: 400;
+      color: var(--accent); text-transform: none; letter-spacing: 0;
+      cursor: pointer; text-decoration: none;
+    }
+    .filter-clear:hover { text-decoration: underline; }
+
+    /* search input */
+    .search-wrap {
+      position: relative; margin-bottom: 1.5rem;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      padding: .6rem .9rem .6rem 2.2rem;
+      border-radius: 8px; outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); background: rgba(232,81,26,.05); }
+    .search-icon {
+      position: absolute; left: .7rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: .85rem; pointer-events: none;
+    }
+
+    /* category chips */
+    .cat-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .cat-chip {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .75rem; font-weight: 400;
+      padding: .3rem .7rem; border-radius: 100px;
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; gap: .3rem;
+    }
+    .cat-chip:hover { border-color: rgba(232,81,26,.3); color: var(--white); }
+    .cat-chip.active {
+      background: rgba(232,81,26,.12);
+      border-color: rgba(232,81,26,.4);
+      color: var(--accent);
+    }
+
+    /* range / select filters */
+    .filter-row { display: flex; flex-direction: column; gap: .5rem; }
+    .filter-select {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      padding: .55rem .8rem;
+      border-radius: 8px; outline: none;
+      appearance: none; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+    .filter-select option { background: #1a1710; }
+
+    .range-label {
+      display: flex; justify-content: space-between;
+      font-size: .75rem; color: var(--muted);
+    }
+    .range-label span { color: var(--accent); font-weight: 500; }
+    input[type="range"] {
+      width: 100%; accent-color: var(--accent);
+      margin-top: .2rem;
+    }
+
+    /* date pills */
+    .date-pills { display: flex; flex-direction: column; gap: .35rem; }
+    .date-pill {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .78rem;
+      padding: .45rem .8rem; border-radius: 8px;
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .date-pill:hover { border-color: rgba(232,81,26,.3); color: var(--white); }
+    .date-pill.active {
+      background: rgba(232,81,26,.1);
+      border-color: rgba(232,81,26,.35);
+      color: var(--accent);
+    }
+    .date-pill .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ── MAIN ── */
+    .main {
+      padding: 1.5rem 2rem 3rem;
+      min-width: 0;
+    }
+
+    /* top bar */
+    .main-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .results-info { font-size: .88rem; color: var(--muted); }
+    .results-info strong { color: var(--white); font-weight: 500; }
+    .sort-wrap { display: flex; align-items: center; gap: .5rem; }
+    .sort-label { font-size: .8rem; color: var(--muted); }
+    .sort-select {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      padding: .4rem .75rem;
+      border-radius: 7px; outline: none; cursor: pointer;
+      appearance: none;
+    }
+    .sort-select option { background: #1a1710; }
+
+    /* active filters bar */
+    .active-filters {
+      display: flex; flex-wrap: wrap; gap: .5rem;
+      margin-bottom: 1.2rem;
+    }
+    .active-filter-tag {
+      background: rgba(232,81,26,.1);
+      border: 1px solid rgba(232,81,26,.3);
+      color: var(--accent);
+      font-size: .75rem; font-weight: 500;
+      padding: .25rem .65rem; border-radius: 100px;
+      display: flex; align-items: center; gap: .4rem;
+      cursor: pointer; transition: background .2s;
+    }
+    .active-filter-tag:hover { background: rgba(232,81,26,.18); }
+    .active-filter-tag .x { font-size: .9rem; line-height: 1; }
+
+    /* ── JOB CARDS GRID ── */
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .job-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.3rem;
+      cursor: pointer;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp .4s both;
+    }
+    .job-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .3s;
+    }
+    .job-card:hover { border-color: rgba(232,81,26,.3); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+    .job-card:hover::before { transform: scaleX(1); }
+    .job-card.saved { border-color: rgba(240,165,0,.3); }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; margin-bottom: 1rem; }
+    .company-logo {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .card-header-right { flex: 1; min-width: 0; }
+    .card-category {
+      font-size: .68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--muted); margin-bottom: .2rem;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      line-height: 1.2; letter-spacing: -.01em;
+    }
+    .save-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 1.1rem;
+      padding: .1rem; transition: color .2s, transform .2s;
+      flex-shrink: 0; line-height: 1;
+    }
+    .save-btn:hover { transform: scale(1.2); }
+    .save-btn.saved { color: var(--accent2); }
+
+    .card-company {
+      font-size: .82rem; color: var(--muted);
+      margin-bottom: .9rem;
+      display: flex; align-items: center; gap: .3rem;
+    }
+    .rating {
+      color: var(--accent2); font-size: .72rem;
+      display: flex; align-items: center; gap: .15rem;
+    }
+
+    .card-meta {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .45rem; margin-bottom: 1rem;
+    }
+    .meta-item {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .78rem; color: var(--muted);
+    }
+    .meta-icon { font-size: .9rem; flex-shrink: 0; }
+
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: .9rem;
+      border-top: 1px solid var(--border);
+      gap: .5rem;
+    }
+    .card-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem; font-weight: 800;
+      color: var(--white);
+    }
+    .card-price span { font-size: .75rem; font-weight: 400; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+
+    .btn-apply {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 7px;
+      padding: .5rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap;
+    }
+    .btn-apply:hover { opacity: .85; transform: translateY(-1px); }
+    .btn-apply.applied {
+      background: rgba(80,180,120,.15);
+      color: var(--green);
+      cursor: default;
+    }
+    .btn-apply.applied:hover { transform: none; opacity: 1; }
+
+    /* status badge */
+    .status-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+      padding: .2rem .5rem; border-radius: 4px;
+    }
+    .status-badge.new { background: rgba(232,81,26,.15); color: var(--accent); }
+    .status-badge.hot { background: rgba(240,165,0,.15); color: var(--accent2); }
+    .status-badge.urgent { background: rgba(232,81,26,.25); color: #ff7a4a; }
+
+    /* slots indicator */
+    .slots {
+      display: flex; align-items: center; gap: .3rem;
+      font-size: .72rem; color: var(--muted);
+    }
+    .slots-bar {
+      width: 40px; height: 3px; background: rgba(255,255,255,.1);
+      border-radius: 100px; overflow: hidden;
+    }
+    .slots-fill { height: 100%; background: var(--green); border-radius: 100px; }
+
+    /* empty state */
+    .empty-state {
+      display: none; flex-direction: column; align-items: center;
+      justify-content: center; padding: 5rem 2rem; text-align: center;
+      grid-column: 1 / -1;
+    }
+    .empty-state.visible { display: flex; }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+    .empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: .4rem; }
+    .empty-state p { color: var(--muted); font-size: .88rem; }
+
+    /* ── MODAL DETAIL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn .2s; }
+    .modal {
+      background: #141210;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px;
+      width: 100%; max-width: 540px;
+      max-height: 90vh; overflow-y: auto;
+      padding: 2rem;
+      animation: slideUp .3s;
+    }
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
+
+    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    .modal-close {
+      background: rgba(255,255,255,.08); border: none; color: var(--muted);
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1rem; flex-shrink: 0;
+      transition: background .2s, color .2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.15); color: var(--white); }
+
+    .modal-company { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.2rem; }
+    .modal-logo { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .modal-company-info h4 { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; }
+    .modal-company-info p { font-size: .8rem; color: var(--muted); }
+
+    .modal h2 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: .3rem; }
+    .modal-category { font-size: .75rem; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin-bottom: 1.2rem; display: block; }
+
+    .modal-details {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .7rem; margin-bottom: 1.5rem;
+    }
+    .detail-box {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: .75rem 1rem;
+    }
+    .detail-box .db-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+    .detail-box .db-value { font-size: .9rem; font-weight: 500; }
+    .detail-box .db-value.price { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--accent2); }
+
+    .modal-desc-title { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: .6rem; }
+    .modal-desc { font-size: .88rem; color: rgba(255,255,255,.7); line-height: 1.7; margin-bottom: 1.5rem; }
+
+    .modal-requirements { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.5rem; }
+    .req-tag {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      font-size: .75rem; padding: .25rem .65rem; border-radius: 100px;
+      color: rgba(255,255,255,.7);
+    }
+
+    .modal-footer { display: flex; gap: .75rem; }
+    .btn-modal-apply {
+      flex: 1; background: var(--accent); color: #fff;
+      border: none; border-radius: 9px; padding: .85rem;
+      font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 500;
+      cursor: pointer; transition: opacity .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(232,81,26,.3);
+    }
+    .btn-modal-apply:hover { opacity: .88; box-shadow: 0 6px 28px rgba(232,81,26,.45); }
+    .btn-modal-apply.applied { background: rgba(80,180,120,.15); color: var(--green); cursor: default; box-shadow: none; }
+    .btn-modal-save {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border); color: var(--white);
+      border-radius: 9px; padding: .85rem 1.2rem;
+      font-family: 'DM Sans', sans-serif; font-size: .95rem;
+      cursor: pointer; transition: background .2s, border-color .2s;
+    }
+    .btn-modal-save:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .page-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; padding: 1rem 1rem .5rem; }
+      .cat-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .5rem; }
+      .filter-section:not(:first-child) { display: none; }
+      .main { padding: 1rem 1rem 3rem; }
+    }
+    @media (max-width: 560px) {
+      .jobs-grid { grid-template-columns: 1fr; }
+      .modal { padding: 1.2rem; }
+      .modal-details { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="flexwork-landing.html" class="logo">Flex<span>Work</span></a>
+  <div class="nav-right">
+    <a href="#" class="nav-link" style="display:none" id="nav-publish" href="flexwork-dashboard-empresa.html">Publicar Vaga</a>
+    <div class="nav-user" onclick="window.location.href='flexwork-dashboard-trabalhador.html'">
+      <div class="nav-avatar">JS</div>
+      <span class="nav-name">João Silva</span>
+    </div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="page-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Pesquisar vagas..." oninput="applyFilters()" />
+    </div>
+
+    <!-- Categoria -->
+    <div class="filter-section">
+      <div class="filter-title">
+        Categoria
+        <a class="filter-clear" onclick="clearCategory()">Limpar</a>
+      </div>
+      <div class="cat-chips" id="cat-chips">
+        <div class="cat-chip active" data-cat="todas" onclick="selectCat(this)">🗂 Todas</div>
+        <div class="cat-chip" data-cat="restauracao" onclick="selectCat(this)">🍽 Restauração</div>
+        <div class="cat-chip" data-cat="comercio" onclick="selectCat(this)">🛒 Comércio</div>
+        <div class="cat-chip" data-cat="limpeza" onclick="selectCat(this)">🧹 Limpeza</div>
+        <div class="cat-chip" data-cat="logistica" onclick="selectCat(this)">📦 Logística</div>
+        <div class="cat-chip" data-cat="eventos" onclick="selectCat(this)">🎪 Eventos</div>
+      </div>
+    </div>
+
+    <!-- Data -->
+    <div class="filter-section">
+      <div class="filter-title">Data</div>
+      <div class="date-pills" id="date-pills">
+        <div class="date-pill active" data-date="todas" onclick="selectDate(this)"><span class="pill-dot"></span>Qualquer data</div>
+        <div class="date-pill" data-date="hoje" onclick="selectDate(this)"><span class="pill-dot"></span>Hoje</div>
+        <div class="date-pill" data-date="amanha" onclick="selectDate(this)"><span class="pill-dot"></span>Amanhã</div>
+        <div class="date-pill" data-date="semana" onclick="selectDate(this)"><span class="pill-dot"></span>Esta semana</div>
+        <div class="date-pill" data-date="fim-semana" onclick="selectDate(this)"><span class="pill-dot"></span>Fim de semana</div>
+      </div>
+    </div>
+
+    <!-- Valor mínimo -->
+    <div class="filter-section">
+      <div class="filter-title">Valor mínimo/hora</div>
+      <div class="range-label">
+        <span>€0/h</span>
+        <span id="range-val">€<span id="range-num">7</span>/h</span>
+      </div>
+      <input type="range" min="7" max="20" value="7" step="0.5" id="range-wage"
+             oninput="document.getElementById('range-num').textContent=this.value; applyFilters()" />
+    </div>
+
+    <!-- Localização -->
+    <div class="filter-section">
+      <div class="filter-title">Distrito</div>
+      <div class="filter-row">
+        <select class="filter-select" id="filter-district" onchange="applyFilters()">
+          <option value="">Todos os distritos</option>
+          <option>Lisboa</option>
+          <option>Porto</option>
+          <option>Setúbal</option>
+          <option>Braga</option>
+          <option>Faro</option>
+          <option>Coimbra</option>
+        </select>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <div class="main-topbar">
+      <div class="results-info" id="results-info">
+        A mostrar <strong id="count-display">9</strong> vagas
+      </div>
+      <div class="sort-wrap">
+        <span class="sort-label">Ordenar:</span>
+        <select class="sort-select" id="sort-select" onchange="applyFilters()">
+          <option value="relevancia">Relevância</option>
+          <option value="recente">Mais recente</option>
+          <option value="preco-asc">Menor preço</option>
+          <option value="preco-desc">Maior preço</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active filter tags -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Cards Grid -->
+    <div class="jobs-grid" id="jobs-grid">
+      <!-- cards injected by JS -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>Sem resultados</h3>
+        <p>Tenta ajustar os filtros para encontrar mais vagas.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <span class="modal-category" id="m-category"></span>
+        <h2 id="m-title"></h2>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-company">
+      <div class="modal-logo" id="m-logo"></div>
+      <div class="modal-company-info">
+        <h4 id="m-company"></h4>
+        <p id="m-rating-text"></p>
+      </div>
+    </div>
+
+    <div class="modal-details">
+      <div class="detail-box">
+        <div class="db-label">Data & Hora</div>
+        <div class="db-value" id="m-date"></div>
+      </div>
+      <div class="detail-box">
+        <div class="db-label">Local</div>
+        <div class="db-value" id="m-location"></div>
+      </div>
+      <div class="detail-box">
+        <div class="db-label">Duração</div>
+        <div class="db-value" id="m-duration"></div>
+      </div>
+      <div class="detail-box">
+        <div class="db-label">Valor/hora</div>
+        <div class="db-value price" id="m-price"></div>
+      </div>
+    </div>
+
+    <div class="modal-desc-title">Descrição</div>
+    <div class="modal-desc" id="m-desc"></div>
+
+    <div class="modal-desc-title">Requisitos</div>
+    <div class="modal-requirements" id="m-reqs"></div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-apply" id="m-apply-btn" onclick="applyFromModal()">Candidatar-me →</button>
+      <button class="btn-modal-save" onclick="saveFromModal()">♡ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const JOBS = [
+  { id:1, title:'Garçom para Evento Corporativo', category:'restauracao', catLabel:'Restauração', company:'Restaurante Solar', rating:4.8, reviews:34, date:'Amanhã', time:'18:00–23:00', duration:'5h', location:'Lisboa, Parque das Nações', district:'Lisboa', wage:9, slots:2, slotsTotal:3, icon:'🍽', bg:'rgba(232,81,26,.12)', badge:'novo', desc:'Precisamos de garçom experiente para jantar corporativo de 60 pessoas. Serviço de mesa, vinho e cocktails. Farda fornecida pela empresa.', reqs:['Exp. serviço de mesa','Farda fornecida','Português fluente'], saved:false, applied:false, daysAgo:0 },
+  { id:2, title:'Repositor Sazonais — Fim de Semana', category:'comercio', catLabel:'Comércio', company:'Hipermercado Max', rating:4.2, reviews:18, date:'Sáb + Dom', time:'08:00–16:00', duration:'8h/dia', location:'Porto, Matosinhos', district:'Porto', wage:8.5, slots:3, slotsTotal:5, icon:'🛒', bg:'rgba(240,165,0,.12)', badge:'hot', desc:'Reposição de prateleiras na secção de têxteis e eletrónica. Trabalho físico moderado, orientação no primeiro dia fornecida.', reqs:['Disponibilidade Sáb+Dom','Esforço físico moderado'], saved:false, applied:false, daysAgo:1 },
+  { id:3, title:'Limpeza Pós-Evento — Pavilhão', category:'limpeza', catLabel:'Limpeza', company:'CleanPro Lda', rating:4.6, reviews:52, date:'Sexta-feira', time:'23:00–02:00', duration:'3h', location:'Setúbal, Centro', district:'Setúbal', wage:10, slots:1, slotsTotal:2, icon:'🧹', bg:'rgba(80,180,120,.12)', badge:'urgente', desc:'Limpeza profunda após evento musical de grande dimensão. Equipamento e produtos fornecidos. Pagamento no próprio dia.', reqs:['Disponibilidade noturna','Carta de condução (preferencial)'], saved:false, applied:false, daysAgo:0 },
+  { id:4, title:'Operador Logística — Armazém', category:'logistica', catLabel:'Logística', company:'SpeedLog Portugal', rating:3.9, reviews:11, date:'Segunda a 6ª', time:'06:00–14:00', duration:'8h/dia', location:'Lisboa, Loures', district:'Lisboa', wage:9.5, slots:2, slotsTotal:4, icon:'📦', bg:'rgba(80,140,220,.12)', badge:'novo', desc:'Receção, triagem e expedição de encomendas. Utilização de scanner portátil. Ambiente de armazém refrigerado (temperatura ~8°C).', reqs:['Esforço físico','Pontualidade','Exp. armazém (preferencial)'], saved:false, applied:false, daysAgo:2 },
+  { id:5, title:'Promotor de Vendas — Centro Comercial', category:'comercio', catLabel:'Comércio', company:'PromoTeam Agency', rating:4.5, reviews:27, date:'Sáb 12 Abr', time:'10:00–19:00', duration:'9h', location:'Braga, NorteShopping', district:'Braga', wage:8, slots:4, slotsTotal:4, icon:'🛍', bg:'rgba(240,165,0,.1)', badge:'', desc:'Promoção de produto de beleza em stand de centro comercial. Perfil comunicativo e apresentação cuidada. Briefing incluído.', reqs:['Boa apresentação','Comunicativo/a','Português fluente'], saved:false, applied:false, daysAgo:3 },
+  { id:6, title:'Barista para Brunch de Domingo', category:'restauracao', catLabel:'Restauração', company:'Café Azul', rating:4.9, reviews:61, date:'Domingo', time:'09:00–14:00', duration:'5h', location:'Lisboa, Príncipe Real', district:'Lisboa', wage:9, slots:1, slotsTotal:1, icon:'☕', bg:'rgba(232,81,26,.1)', badge:'', desc:'Barista com experiência em espresso e latte art para brunch semanal de café de bairro. Ambiente descontraído e boa equipa.', reqs:['Exp. barista','Latte art (obrigatório)','Inglês básico'], saved:false, applied:false, daysAgo:1 },
+  { id:7, title:'Animador de Eventos Infantis', category:'eventos', catLabel:'Eventos', company:'MagicFun Eventos', rating:4.7, reviews:39, date:'Sáb 12 Abr', time:'14:00–18:00', duration:'4h', location:'Faro, Gambelas', district:'Faro', wage:11, slots:2, slotsTotal:3, icon:'🎪', bg:'rgba(140,100,220,.12)', badge:'', desc:'Animação de festa de aniversário infantil (6–10 anos). Atividades de circo ligeiro, jogos e pinturas faciais. Fato fornecido.', reqs:['Exp. animação infantil','Energia e paciência','Transporte próprio'], saved:false, applied:false, daysAgo:0 },
+  { id:8, title:'Empregado de Mesa — Almoços', category:'restauracao', catLabel:'Restauração', company:'Taberna do Porto', rating:4.4, reviews:22, date:'Seg a 6ª', time:'11:30–15:30', duration:'4h/dia', location:'Porto, Ribeira', district:'Porto', wage:8.5, slots:1, slotsTotal:2, icon:'🍷', bg:'rgba(232,81,26,.08)', badge:'', desc:'Empregado/a de mesa para serviço de almoços em taberna tradicional. Ambiente familiar, clientela habitual. Experiência mínima de 6 meses.', reqs:['Exp. serviço mesa 6m+','Disponibilidade almoços','Porto ou arredores'], saved:false, applied:false, daysAgo:4 },
+  { id:9, title:'Motorista Distribuição — Rota Lisboa', category:'logistica', catLabel:'Logística', company:'QuickDrop Express', rating:4.1, reviews:8, date:'Terça-feira', time:'07:00–17:00', duration:'10h', location:'Lisboa, Zona Industrial', district:'Lisboa', wage:12, slots:1, slotsTotal:1, icon:'🚐', bg:'rgba(80,180,220,.12)', badge:'urgente', desc:'Distribuição de encomendas em rota pré-definida na Grande Lisboa. Veículo fornecido pela empresa. Experiência em distribuição preferencial.', reqs:['Carta condução B (obrigatório)','Conhecimento Lisboa','Exp. distribuição'], saved:false, applied:false, daysAgo:0 },
+];
+
+let filteredJobs = [...JOBS];
+let currentCat  = 'todas';
+let currentDate = 'todas';
+let activeJobId = null;
+
+// ── RENDER ──
+function renderCards(jobs) {
+  const grid = document.getElementById('jobs-grid');
+  const existing = grid.querySelectorAll('.job-card');
+  existing.forEach(c => c.remove());
+  document.getElementById('count-display').textContent = jobs.length;
+  document.getElementById('empty-state').classList.toggle('visible', jobs.length === 0);
+
+  jobs.forEach((job, i) => {
+    const card = document.createElement('div');
+    card.className = 'job-card' + (job.saved ? ' saved' : '');
+    card.style.animationDelay = (i * 0.04) + 's';
+    card.dataset.id = job.id;
+
+    const slotPct = Math.max(10, (job.slots / job.slotsTotal) * 100);
+    const badgeHtml = job.badge
+      ? `<span class="status-badge ${job.badge === 'urgente' ? 'urgent' : job.badge}">${job.badge}</span>`
+      : '';
+    const appliedHtml = job.applied
+      ? `<button class="btn-apply applied">✓ Candidatado</button>`
+      : `<button class="btn-apply" onclick="applyJob(event, ${job.id})">Candidatar →</button>`;
+
+    card.innerHTML = `
+      ${badgeHtml}
+      <div class="card-header">
+        <div class="company-logo" style="background:${job.bg}">${job.icon}</div>
+        <div class="card-header-right">
+          <div class="card-category">${job.catLabel}</div>
+          <div class="card-title">${job.title}</div>
+        </div>
+        <button class="save-btn ${job.saved ? 'saved' : ''}" onclick="toggleSave(event, ${job.id})">${job.saved ? '♥' : '♡'}</button>
+      </div>
+      <div class="card-company">
+        ${job.company}
+        <span style="color:var(--muted2)">·</span>
+        <span class="rating">★ ${job.rating} <span style="color:var(--muted)">(${job.reviews})</span></span>
+      </div>
+      <div class="card-meta">
+        <div class="meta-item"><span class="meta-icon">📅</span>${job.date}</div>
+        <div class="meta-item"><span class="meta-icon">🕐</span>${job.time}</div>
+        <div class="meta-item"><span class="meta-icon">📍</span>${job.location.split(',')[0]}</div>
+        <div class="meta-item"><span class="meta-icon">⏱</span>${job.duration}</div>
+      </div>
+      <div class="card-footer">
+        <div>
+          <div class="card-price">€${job.wage}<span>/hora</span></div>
+          <div class="slots">
+            <div class="slots-bar"><div class="slots-fill" style="width:${slotsPct(job)}%"></div></div>
+            ${job.slots} vaga${job.slots !== 1 ? 's' : ''} disponível
+          </div>
+        </div>
+        ${appliedHtml}
+      </div>
+    `;
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.save-btn') || e.target.closest('.btn-apply')) return;
+      openModal(job.id);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function slotsPct(job) {
+  return Math.max(10, (job.slots / job.slotsTotal) * 100);
+}
+
+// ── FILTERS ──
+function applyFilters() {
+  const search   = document.getElementById('search-input').value.toLowerCase();
+  const minWage  = parseFloat(document.getElementById('range-wage').value);
+  const district = document.getElementById('filter-district').value;
+  const sort     = document.getElementById('sort-select').value;
+
+  let results = JOBS.filter(j => {
+    if (currentCat !== 'todas' && j.category !== currentCat) return false;
+    if (search && !j.title.toLowerCase().includes(search) && !j.company.toLowerCase().includes(search)) return false;
+    if (j.wage < minWage) return false;
+    if (district && j.district !== district) return false;
+    // date filter simplified
+    if (currentDate === 'hoje'       && j.daysAgo !== 0) return false;
+    if (currentDate === 'amanha'     && !j.date.toLowerCase().includes('amanhã')) return false;
+    if (currentDate === 'fim-semana' && !['sáb','dom','sab'].some(d => j.date.toLowerCase().includes(d))) return false;
+    return true;
+  });
+
+  if (sort === 'preco-asc') results.sort((a,b) => a.wage - b.wage);
+  if (sort === 'preco-desc') results.sort((a,b) => b.wage - a.wage);
+  if (sort === 'recente') results.sort((a,b) => a.daysAgo - b.daysAgo);
+
+  filteredJobs = results;
+  renderCards(results);
+  renderActiveTags(search, minWage, district);
+}
+
+function selectCat(el) {
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentCat = el.dataset.cat;
+  applyFilters();
+}
+
+function selectDate(el) {
+  document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  currentDate = el.dataset.date;
+  applyFilters();
+}
+
+function clearCategory() {
+  currentCat = 'todas';
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-cat="todas"]').classList.add('active');
+  applyFilters();
+}
+
+function renderActiveTags(search, minWage, district) {
+  const bar = document.getElementById('active-filters');
+  bar.innerHTML = '';
+  const add = (label, onRemove) => {
+    const tag = document.createElement('div');
+    tag.className = 'active-filter-tag';
+    tag.innerHTML = `${label} <span class="x">×</span>`;
+    tag.onclick = onRemove;
+    bar.appendChild(tag);
+  };
+  if (currentCat !== 'todas') add(document.querySelector(`[data-cat="${currentCat}"]`)?.textContent.trim(), () => { clearCategory(); });
+  if (search) add(`"${search}"`, () => { document.getElementById('search-input').value=''; applyFilters(); });
+  if (minWage > 7) add(`≥€${minWage}/h`, () => { document.getElementById('range-wage').value=7; document.getElementById('range-num').textContent=7; applyFilters(); });
+  if (district) add(district, () => { document.getElementById('filter-district').value=''; applyFilters(); });
+}
+
+// ── SAVE ──
+function toggleSave(e, id) {
+  e.stopPropagation();
+  const job = JOBS.find(j => j.id === id);
+  job.saved = !job.saved;
+  applyFilters();
+}
+
+// ── APPLY ──
+function applyJob(e, id) {
+  e.stopPropagation();
+  const job = JOBS.find(j => j.id === id);
+  if (job.applied) return;
+  job.applied = true;
+  if (job.slots > 0) job.slots--;
+  applyFilters();
+  showToast(`Candidatura enviada para "${job.title}"!`);
+}
+
+function applyFromModal() {
+  const job = JOBS.find(j => j.id === activeJobId);
+  if (!job || job.applied) return;
+  job.applied = true;
+  if (job.slots > 0) job.slots--;
+  const btn = document.getElementById('m-apply-btn');
+  btn.textContent = '✓ Candidatado';
+  btn.classList.add('applied');
+  applyFilters();
+  showToast(`Candidatura enviada!`);
+}
+
+function saveFromModal() {
+  const job = JOBS.find(j => j.id === activeJobId);
+  if (!job) return;
+  job.saved = !job.saved;
+  const btn = document.querySelector('.btn-modal-save');
+  btn.textContent = job.saved ? '♥ Guardado' : '♡ Guardar';
+  applyFilters();
+}
+
+// ── MODAL ──
+function openModal(id) {
+  const job = JOBS.find(j => j.id === id);
+  if (!job) return;
+  activeJobId = id;
+
+  document.getElementById('m-category').textContent = job.catLabel;
+  document.getElementById('m-title').textContent    = job.title;
+  document.getElementById('m-logo').textContent     = job.icon;
+  document.getElementById('m-logo').style.background = job.bg;
+  document.getElementById('m-company').textContent  = job.company;
+  document.getElementById('m-rating-text').textContent = `★ ${job.rating} · ${job.reviews} avaliações`;
+  document.getElementById('m-date').textContent     = `${job.date} · ${job.time}`;
+  document.getElementById('m-location').textContent = job.location;
+  document.getElementById('m-duration').textContent = job.duration;
+  document.getElementById('m-price').textContent    = `€${job.wage}/h`;
+  document.getElementById('m-desc').textContent     = job.desc;
+
+  const reqs = document.getElementById('m-reqs');
+  reqs.innerHTML = job.reqs.map(r => `<span class="req-tag">${r}</span>`).join('');
+
+  const applyBtn = document.getElementById('m-apply-btn');
+  applyBtn.textContent = job.applied ? '✓ Candidatado' : 'Candidatar-me →';
+  applyBtn.className = 'btn-modal-apply' + (job.applied ? ' applied' : '');
+
+  document.querySelector('.btn-modal-save').textContent = job.saved ? '♥ Guardado' : '♡ Guardar';
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  activeJobId = null;
+}
+
+function closeModalOnOverlay(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1a1a18;border:1px solid rgba(80,180,120,.3);color:#50b478;padding:.65rem 1.4rem;border-radius:100px;font-size:.85rem;font-family:'DM Sans',sans-serif;font-weight:500;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:fadeUp .3s;white-space:nowrap;`;
+  t.textContent = '✓ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── INIT ──
+renderCards(JOBS);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Dashboard Empresa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #09090a;
+      --surface: #111012;
+      --card:    #161518;
+      --card2:   #1c1b1e;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --white:   #f0edf5;
+      --muted:   #7a7480;
+      --muted2:  #3d3a42;
+      --accent:  #e8511a;
+      --accent2: #f0a500;
+      --green:   #3ecf8e;
+      --red:     #e85555;
+      --blue:    #4a9eff;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ── SIDEBAR NAV ── */
+    .sidenav {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidenav::-webkit-scrollbar { width: 3px; }
+    .sidenav::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 3px; }
+
+    .sidenav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.2rem;
+      letter-spacing: -.02em;
+      color: var(--white);
+      text-decoration: none;
+      padding: .3rem .5rem;
+      margin-bottom: 1.8rem;
+      display: block;
+    }
+    .sidenav-logo span { color: var(--accent); }
+
+    .nav-section-label {
+      font-size: .62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .12em;
+      color: var(--muted2);
+      padding: 0 .5rem;
+      margin-bottom: .4rem;
+      margin-top: 1.2rem;
+    }
+    .nav-section-label:first-of-type { margin-top: 0; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .55rem .75rem;
+      border-radius: 9px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      border: none; background: none;
+      width: 100%; text-align: left;
+      margin-bottom: .1rem;
+      position: relative;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.05); color: var(--white); }
+    .nav-item.active { background: rgba(232,81,26,.1); color: var(--accent); }
+    .nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+      font-size: .62rem; font-weight: 700;
+      padding: .1rem .45rem;
+      border-radius: 100px;
+      min-width: 18px; text-align: center;
+    }
+
+    .sidenav-bottom {
+      margin-top: auto;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .company-pill {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .55rem .6rem;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .company-pill:hover { background: rgba(255,255,255,.05); }
+    .company-avatar {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(232,81,26,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800;
+      font-family: 'Syne', sans-serif;
+      color: var(--accent); flex-shrink: 0;
+    }
+    .company-info { min-width: 0; }
+    .company-name { font-size: .82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .company-role { font-size: .7rem; color: var(--muted); }
+
+    /* ── MAIN AREA ── */
+    .main-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* top bar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .topbar-left h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem; font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .topbar-left p { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+    .topbar-right { display: flex; align-items: center; gap: .75rem; }
+
+    .btn-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .9rem;
+      transition: background .15s;
+      position: relative;
+    }
+    .btn-icon:hover { background: rgba(255,255,255,.1); }
+    .btn-icon .dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 7px; height: 7px;
+      background: var(--accent); border-radius: 50%;
+      border: 1px solid var(--surface);
+    }
+
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      padding: .55rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem; font-weight: 500;
+      cursor: pointer;
+      display: flex; align-items: center; gap: .4rem;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+
+    /* ── CONTENT ── */
+    .content {
+      padding: 1.8rem 2rem 3rem;
+      flex: 1;
+    }
+
+    /* views */
+    .view { display: none; animation: fadeIn .25s; }
+    .view.active { display: block; }
+
+    /* ── METRICS ROW ── */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, transform .2s;
+    }
+    .metric-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .metric-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      border-radius: 0 0 12px 12px;
+    }
+    .mc-orange::after { background: var(--accent); }
+    .mc-yellow::after { background: var(--accent2); }
+    .mc-green::after  { background: var(--green); }
+    .mc-blue::after   { background: var(--blue); }
+
+    .metric-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+    .metric-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      line-height: 1; margin-bottom: .3rem;
+    }
+    .metric-sub { font-size: .75rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; }
+    .metric-sub .up   { color: var(--green); }
+    .metric-sub .down { color: var(--red); }
+
+    /* ── GRID 2 COLS ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .grid-3-1 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.2rem;
+    }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .sc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sc-title {
+      font-family: 'Syne', sans-serif;
+      font-size: .9rem; font-weight: 700;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .sc-title .icon { font-size: 1rem; }
+    .sc-action {
+      font-size: .75rem; color: var(--accent);
+      cursor: pointer; text-decoration: none;
+      transition: opacity .2s;
+    }
+    .sc-action:hover { opacity: .7; }
+
+    /* ── VAGAS TABLE ── */
+    .vagas-list { }
+    .vaga-row {
+      display: grid;
+      grid-template-columns: 2.5fr 1fr 1fr 1fr auto;
+      align-items: center;
+      gap: .8rem;
+      padding: .85rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+      cursor: pointer;
+    }
+    .vaga-row:last-child { border-bottom: none; }
+    .vaga-row:hover { background: rgba(255,255,255,.025); }
+
+    .vaga-row-info { display: flex; align-items: center; gap: .75rem; }
+    .vr-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .vr-title { font-size: .88rem; font-weight: 500; margin-bottom: .1rem; }
+    .vr-meta  { font-size: .72rem; color: var(--muted); }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .7rem; font-weight: 600;
+      padding: .2rem .6rem; border-radius: 100px;
+      white-space: nowrap;
+    }
+    .sp-aberta   { background: rgba(62,207,142,.1);  color: var(--green); }
+    .sp-preench  { background: rgba(74,158,255,.1);  color: var(--blue); }
+    .sp-expirada { background: rgba(122,116,128,.12); color: var(--muted); }
+    .sp-rascunho { background: rgba(240,165,0,.1);    color: var(--accent2); }
+    .sp-cancelada{ background: rgba(232,85,85,.1);    color: var(--red); }
+
+    .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    .vaga-candidates {
+      display: flex; align-items: center; gap: .3rem;
+      font-size: .82rem; color: var(--muted);
+    }
+    .cand-faces { display: flex; }
+    .cand-face {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--card2);
+      border: 1.5px solid var(--card);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; font-weight: 700;
+      margin-left: -6px; color: var(--muted);
+    }
+    .cand-face:first-child { margin-left: 0; }
+
+    .vaga-date { font-size: .78rem; color: var(--muted); white-space: nowrap; }
+    .vaga-wage {
+      font-family: 'Syne', sans-serif;
+      font-size: .9rem; font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .row-actions { display: flex; gap: .4rem; }
+    .btn-sm {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: .3rem .6rem;
+      font-size: .72rem; cursor: pointer;
+      transition: all .15s; white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-sm:hover { background: rgba(255,255,255,.1); color: var(--white); }
+    .btn-sm.danger:hover { background: rgba(232,85,85,.1); border-color: rgba(232,85,85,.3); color: var(--red); }
+
+    /* ── CANDIDATOS LIST ── */
+    .cand-list { }
+    .cand-row {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .85rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .cand-row:last-child { border-bottom: none; }
+    .cand-row:hover { background: rgba(255,255,255,.025); }
+
+    .cand-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: .85rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .cand-info { flex: 1; min-width: 0; }
+    .cand-name { font-size: .88rem; font-weight: 500; }
+    .cand-meta { font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; margin-top: .1rem; }
+    .cand-rating { color: var(--accent2); }
+    .cand-vaga { font-size: .72rem; color: var(--muted); max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .cand-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+    .btn-accept {
+      background: rgba(62,207,142,.1); color: var(--green);
+      border: 1px solid rgba(62,207,142,.25);
+      border-radius: 6px; padding: .3rem .7rem;
+      font-size: .75rem; font-weight: 600; cursor: pointer;
+      transition: all .15s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-accept:hover { background: rgba(62,207,142,.2); }
+    .btn-accept.accepted { cursor: default; }
+    .btn-reject {
+      background: rgba(232,85,85,.08); color: var(--red);
+      border: 1px solid rgba(232,85,85,.2);
+      border-radius: 6px; padding: .3rem .7rem;
+      font-size: .75rem; font-weight: 600; cursor: pointer;
+      transition: all .15s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-reject:hover { background: rgba(232,85,85,.18); }
+
+    /* ── ACTIVITY FEED ── */
+    .activity-feed { padding: .3rem 0; }
+    .activity-item {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .75rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; margin-top: .35rem;
+    }
+    .act-green { background: var(--green); }
+    .act-orange { background: var(--accent); }
+    .act-blue   { background: var(--blue); }
+    .act-yellow { background: var(--accent2); }
+
+    .activity-text { flex: 1; font-size: .82rem; color: rgba(255,255,255,.75); line-height: 1.4; }
+    .activity-text strong { color: var(--white); font-weight: 500; }
+    .activity-time { font-size: .7rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+
+    /* ── MINI CHART ── */
+    .chart-wrap { padding: 1rem 1.2rem 1.2rem; }
+    .chart-bars {
+      display: flex; align-items: flex-end; gap: .35rem;
+      height: 80px;
+    }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+    .bar {
+      width: 100%; border-radius: 4px 4px 0 0;
+      background: rgba(232,81,26,.25);
+      min-height: 4px;
+      transition: background .2s;
+      cursor: pointer;
+    }
+    .bar:hover, .bar.active { background: var(--accent); }
+    .bar-label { font-size: .62rem; color: var(--muted); }
+
+    /* ── NOVA VAGA MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn .2s; }
+
+    .modal {
+      background: #18161a;
+      border: 1px solid var(--border2);
+      border-radius: 18px;
+      width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto;
+      padding: 2rem;
+      animation: slideUp .3s;
+    }
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
+
+    .modal-header-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header-row h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -.025em;
+    }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,.08); border: none;
+      color: var(--muted); font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.15); color: var(--white); }
+
+    /* form */
+    .form-fields { display: flex; flex-direction: column; gap: .9rem; }
+    .field-group { display: flex; flex-direction: column; gap: .35rem; }
+    .field-group label { font-size: .78rem; color: rgba(255,255,255,.55); font-weight: 500; letter-spacing: .02em; }
+    .field-group label .req { color: var(--accent); }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 300;
+      padding: .65rem .9rem;
+      border-radius: 9px; outline: none;
+      transition: border-color .2s, background .2s;
+      width: 100%;
+    }
+    .field-group textarea { resize: vertical; min-height: 80px; }
+    .field-group input::placeholder,
+    .field-group textarea::placeholder { color: var(--muted); }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color: var(--accent); background: rgba(232,81,26,.05); }
+    .field-group select option { background: #1a1710; }
+
+    .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+
+    .modal-footer-row {
+      display: flex; gap: .75rem; justify-content: flex-end;
+      margin-top: 1.5rem; padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-outline {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: .6rem 1.2rem;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem;
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-outline:hover { border-color: var(--border2); color: var(--white); }
+    .btn-submit-modal {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; padding: .6rem 1.5rem;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 500;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .btn-submit-modal:hover { opacity: .88; }
+
+    /* ── AVALIAÇÕES view ── */
+    .aval-list { display: flex; flex-direction: column; gap: 1rem; padding: 1.2rem; }
+    .aval-card {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem;
+    }
+    .aval-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .7rem; }
+    .aval-who { display: flex; align-items: center; gap: .6rem; }
+    .aval-stars { color: var(--accent2); font-size: .85rem; letter-spacing: .05em; }
+    .aval-date { font-size: .72rem; color: var(--muted); }
+    .aval-job { font-size: .75rem; color: var(--accent); margin-bottom: .5rem; }
+    .aval-text { font-size: .84rem; color: rgba(255,255,255,.65); line-height: 1.6; font-style: italic; }
+    .pending-aval {
+      background: rgba(240,165,0,.07); border: 1px dashed rgba(240,165,0,.25);
+      border-radius: 12px; padding: 1.1rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .pending-aval p { font-size: .85rem; color: var(--muted); }
+    .pending-aval strong { color: var(--white); font-weight: 500; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+    @keyframes fadeUp  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .metrics-row { grid-template-columns: repeat(2, 1fr); }
+      .grid-3-1 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .sidenav { display: none; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .vaga-row { grid-template-columns: 1fr auto; }
+      .vaga-row > *:nth-child(2),
+      .vaga-row > *:nth-child(3),
+      .vaga-row > *:nth-child(4) { display: none; }
+    }
+    @media (max-width: 600px) {
+      .metrics-row { grid-template-columns: 1fr 1fr; }
+      .content { padding: 1rem 1rem 3rem; }
+      .topbar { padding: .8rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDE NAV -->
+<aside class="sidenav">
+  <a href="flexwork-landing.html" class="sidenav-logo">Flex<span>Work</span></a>
+
+  <span class="nav-section-label">Principal</span>
+  <button class="nav-item active" onclick="showView('dashboard')">
+    <span class="nav-icon">⬛</span> Dashboard
+  </button>
+  <button class="nav-item" onclick="showView('vagas')">
+    <span class="nav-icon">📋</span> As Minhas Vagas
+    <span class="nav-badge" id="badge-vagas">3</span>
+  </button>
+  <button class="nav-item" onclick="showView('candidatos')">
+    <span class="nav-icon">👥</span> Candidatos
+    <span class="nav-badge" id="badge-cands">5</span>
+  </button>
+  <button class="nav-item" onclick="showView('avaliacoes')">
+    <span class="nav-icon">⭐</span> Avaliações
+  </button>
+
+  <span class="nav-section-label">Conta</span>
+  <button class="nav-item" onclick="showView('perfil')">
+    <span class="nav-icon">🏢</span> Perfil da Empresa
+  </button>
+  <button class="nav-item">
+    <span class="nav-icon">🔔</span> Notificações
+  </button>
+  <button class="nav-item">
+    <span class="nav-icon">⚙️</span> Definições
+  </button>
+
+  <div class="sidenav-bottom">
+    <div class="company-pill">
+      <div class="company-avatar">RS</div>
+      <div class="company-info">
+        <div class="company-name">Restaurante Solar</div>
+        <div class="company-role">Conta Empresa</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-area">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">Dashboard</h1>
+      <p id="page-sub">Bom dia, Restaurante Solar ☀️</p>
+    </div>
+    <div class="topbar-right">
+      <div class="btn-icon">🔔<span class="dot"></span></div>
+      <a href="flexwork-vagas.html" class="btn-primary" style="background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--white);box-shadow:none;text-decoration:none;">Ver Vagas</a>
+      <button class="btn-primary" onclick="openModal()">＋ Nova Vaga</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ── VIEW: DASHBOARD ── -->
+    <div class="view active" id="view-dashboard">
+
+      <!-- Metrics -->
+      <div class="metrics-row">
+        <div class="metric-card mc-orange">
+          <div class="metric-label">Vagas Ativas</div>
+          <div class="metric-value">3</div>
+          <div class="metric-sub"><span class="up">↑ 1</span> desde semana passada</div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-label">Candidaturas</div>
+          <div class="metric-value">12</div>
+          <div class="metric-sub"><span class="up">↑ 5</span> esta semana</div>
+        </div>
+        <div class="metric-card mc-green">
+          <div class="metric-label">Matches Realizados</div>
+          <div class="metric-value">28</div>
+          <div class="metric-sub"><span class="up">↑ 3</span> este mês</div>
+        </div>
+        <div class="metric-card mc-blue">
+          <div class="metric-label">Avaliação Média</div>
+          <div class="metric-value">4.8<span style="font-size:1rem;color:var(--accent2)">★</span></div>
+          <div class="metric-sub">Baseada em <strong style="color:var(--white)">34</strong> avaliações</div>
+        </div>
+      </div>
+
+      <div class="grid-3-1">
+        <!-- Vagas recentes -->
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span class="icon">📋</span> Vagas Ativas</div>
+            <a class="sc-action" onclick="showView('vagas')">Ver todas →</a>
+          </div>
+          <div class="vagas-list" id="dash-vagas-list"></div>
+        </div>
+
+        <!-- Activity -->
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span class="icon">⚡</span> Atividade Recente</div>
+          </div>
+          <div class="activity-feed">
+            <div class="activity-item">
+              <div class="activity-dot act-green"></div>
+              <div class="activity-text"><strong>João Silva</strong> candidatou-se a Garçom para Evento</div>
+              <div class="activity-time">5m</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-orange"></div>
+              <div class="activity-text">Nova vaga <strong>Barista Brunch</strong> publicada</div>
+              <div class="activity-time">1h</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-blue"></div>
+              <div class="activity-text"><strong>Ana Ferreira</strong> aceite para Empregada de Mesa</div>
+              <div class="activity-time">3h</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-yellow"></div>
+              <div class="activity-text">Avaliação de <strong>Carlos M.</strong> disponível para responder</div>
+              <div class="activity-time">1d</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-green"></div>
+              <div class="activity-text"><strong>Marta Costa</strong> candidatou-se a Barista Brunch</div>
+              <div class="activity-time">1d</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot act-orange"></div>
+              <div class="activity-text">Vaga <strong>Repositor Sazonal</strong> expirou</div>
+              <div class="activity-time">2d</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart + Candidatos pendentes -->
+      <div class="grid-2" style="margin-top:1.2rem">
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span class="icon">📊</span> Vagas por Semana</div>
+            <span style="font-size:.72rem;color:var(--muted)">Últimas 8 semanas</span>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-bars" id="chart-bars"></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sc-header">
+            <div class="sc-title"><span class="icon">👥</span> Candidatos Pendentes</div>
+            <a class="sc-action" onclick="showView('candidatos')">Ver todos →</a>
+          </div>
+          <div class="cand-list" id="dash-cands-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: VAGAS ── -->
+    <div class="view" id="view-vagas">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.75rem;">
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;" id="vaga-filter-tabs">
+          <button class="btn-sm" style="background:rgba(232,81,26,.1);border-color:rgba(232,81,26,.3);color:var(--accent)" onclick="filterVagasTab(this,'todas')">Todas</button>
+          <button class="btn-sm" onclick="filterVagasTab(this,'aberta')">Ativas</button>
+          <button class="btn-sm" onclick="filterVagasTab(this,'preenchida')">Preenchidas</button>
+          <button class="btn-sm" onclick="filterVagasTab(this,'expirada')">Expiradas</button>
+          <button class="btn-sm" onclick="filterVagasTab(this,'rascunho')">Rascunhos</button>
+        </div>
+        <a href="flexwork-vagas.html" class="btn-primary" style="background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--white);box-shadow:none;text-decoration:none;">Ver Vagas</a>
+      <button class="btn-primary" onclick="openModal()">＋ Nova Vaga</button>
+      </div>
+      <div class="section-card">
+        <div class="vagas-list" id="all-vagas-list"></div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: CANDIDATOS ── -->
+    <div class="view" id="view-candidatos">
+      <div style="margin-bottom:1.2rem;">
+        <select id="cand-filter-vaga" class="btn-sm" style="padding:.4rem .8rem;font-size:.8rem;min-width:200px;" onchange="renderCandidatos()">
+          <option value="">Todas as vagas</option>
+          <option>Garçom para Evento Corporativo</option>
+          <option>Barista para Brunch de Domingo</option>
+          <option>Empregado/a de Mesa — Almoços</option>
+        </select>
+      </div>
+      <div class="section-card">
+        <div class="sc-header">
+          <div class="sc-title"><span class="icon">👥</span> Candidatos <span id="cands-count" style="font-size:.78rem;color:var(--muted);font-weight:400;margin-left:.3rem"></span></div>
+        </div>
+        <div class="cand-list" id="all-cands-list"></div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: AVALIAÇÕES ── -->
+    <div class="view" id="view-avaliacoes">
+      <div class="section-card">
+        <div class="sc-header">
+          <div class="sc-title"><span class="icon">⭐</span> Avaliações Recebidas</div>
+          <span style="font-size:.78rem;color:var(--muted)">Média: <strong style="color:var(--accent2)">4.8★</strong></span>
+        </div>
+        <div class="aval-list">
+          <div class="pending-aval">
+            <div>
+              <p>Tens uma avaliação pendente para responder:</p>
+              <strong>João Silva — Garçom para Evento (14 Mar)</strong>
+            </div>
+            <button class="btn-primary" style="font-size:.8rem;padding:.45rem .9rem" onclick="showToast('Avaliação submetida!')">Avaliar agora →</button>
+          </div>
+
+          <div class="aval-card">
+            <div class="aval-header">
+              <div class="aval-who">
+                <div class="cand-avatar" style="width:34px;height:34px;background:rgba(62,207,142,.15);color:var(--green);font-size:.8rem">AF</div>
+                <div>
+                  <div style="font-size:.85rem;font-weight:500">Ana Ferreira</div>
+                  <div class="aval-stars">★★★★★</div>
+                </div>
+              </div>
+              <div class="aval-date">12 Mar 2026</div>
+            </div>
+            <div class="aval-job">Empregada de Mesa — Almoços</div>
+            <div class="aval-text">"Empresa muito bem organizada, recebeu-me muito bem. Explicaram tudo no início, equipa simpática. Recomendo."</div>
+          </div>
+
+          <div class="aval-card">
+            <div class="aval-header">
+              <div class="aval-who">
+                <div class="cand-avatar" style="width:34px;height:34px;background:rgba(74,158,255,.15);color:var(--blue);font-size:.8rem">MC</div>
+                <div>
+                  <div style="font-size:.85rem;font-weight:500">Marta Costa</div>
+                  <div class="aval-stars">★★★★☆</div>
+                </div>
+              </div>
+              <div class="aval-date">5 Mar 2026</div>
+            </div>
+            <div class="aval-job">Barista para Brunch</div>
+            <div class="aval-text">"Boa experiência no geral. O espaço é bonito e a equipa acolhedora. Horário começou um pouco atrasado mas correu bem."</div>
+          </div>
+
+          <div class="aval-card">
+            <div class="aval-header">
+              <div class="aval-who">
+                <div class="cand-avatar" style="width:34px;height:34px;background:rgba(240,165,0,.15);color:var(--accent2);font-size:.8rem">RP</div>
+                <div>
+                  <div style="font-size:.85rem;font-weight:500">Rui Pinto</div>
+                  <div class="aval-stars">★★★★★</div>
+                </div>
+              </div>
+              <div class="aval-date">20 Fev 2026</div>
+            </div>
+            <div class="aval-job">Garçom para Evento Corporativo</div>
+            <div class="aval-text">"Excelente empresa para trabalhar. Tudo muito organizado, pagamento pontual e equipa super profissional."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: PERFIL ── -->
+    <div class="view" id="view-perfil">
+      <div class="section-card" style="max-width:620px">
+        <div class="sc-header">
+          <div class="sc-title"><span class="icon">🏢</span> Perfil da Empresa</div>
+          <button class="btn-sm" onclick="showToast('Perfil guardado!')">Guardar alterações</button>
+        </div>
+        <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+          <div class="field-row-2">
+            <div class="field-group">
+              <label>Nome da Empresa <span class="req">*</span></label>
+              <input type="text" value="Restaurante Solar" />
+            </div>
+            <div class="field-group">
+              <label>NIF <span class="req">*</span></label>
+              <input type="text" value="501234567" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Setor de Atividade</label>
+            <select>
+              <option selected>Restauração e Hotelaria</option>
+              <option>Comércio a Retalho</option>
+              <option>Limpeza e Manutenção</option>
+              <option>Logística e Distribuição</option>
+              <option>Eventos</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Morada</label>
+            <input type="text" value="Rua do Sol, 42, Lisboa" />
+          </div>
+          <div class="field-group">
+            <label>Descrição <span style="color:var(--muted);font-weight:300">(máx. 500 car.)</span></label>
+            <textarea>Restaurante Solar — cozinha portuguesa contemporânea no coração de Lisboa. Trabalhamos com produtos frescos e locais. Equipa jovem e dinâmica.</textarea>
+          </div>
+          <div class="field-group">
+            <label>Website</label>
+            <input type="text" placeholder="https://restaurante-solar.pt" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-area -->
+
+<!-- NOVA VAGA MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOverlay(event)">
+  <div class="modal">
+    <div class="modal-header-row">
+      <h2>Nova Vaga</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-fields">
+      <div class="field-group">
+        <label>Título da Função <span class="req">*</span></label>
+        <input type="text" placeholder="Ex: Garçom para Evento Corporativo" />
+      </div>
+      <div class="field-group">
+        <label>Categoria <span class="req">*</span></label>
+        <select>
+          <option value="">Selecionar categoria...</option>
+          <option>Restauração</option>
+          <option>Comércio</option>
+          <option>Limpeza</option>
+          <option>Logística</option>
+          <option>Eventos</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Descrição <span class="req">*</span></label>
+        <textarea placeholder="Descreve a função, o ambiente e o que é esperado do trabalhador..."></textarea>
+      </div>
+      <div class="field-row-2">
+        <div class="field-group">
+          <label>Data de Início <span class="req">*</span></label>
+          <input type="datetime-local" />
+        </div>
+        <div class="field-group">
+          <label>Data de Fim <span class="req">*</span></label>
+          <input type="datetime-local" />
+        </div>
+      </div>
+      <div class="field-row-2">
+        <div class="field-group">
+          <label>Valor por Hora (€) <span class="req">*</span></label>
+          <input type="number" min="7" step="0.5" placeholder="Ex: 9.00" />
+        </div>
+        <div class="field-group">
+          <label>Máx. Candidatos</label>
+          <input type="number" min="1" value="1" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Localização / Morada <span class="req">*</span></label>
+        <input type="text" placeholder="Ex: Rua do Sol, 42, Lisboa" />
+      </div>
+      <div class="field-group">
+        <label>Requisitos Adicionais</label>
+        <input type="text" placeholder="Ex: Carta de condução, inglês básico..." />
+      </div>
+    </div>
+    <div class="modal-footer-row">
+      <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn-outline" onclick="showToast('Rascunho guardado!'); closeModal()">Guardar Rascunho</button>
+      <button class="btn-submit-modal" onclick="submitVaga()">Publicar Vaga →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const VAGAS = [
+  { id:1, title:'Garçom para Evento Corporativo', cat:'Restauração', icon:'🍽', bg:'rgba(232,81,26,.12)', status:'aberta', date:'Amanhã 18h', wage:'€9/h', candidates:[{i:'JS',c:'rgba(62,207,142,.2)'},{i:'MC',c:'rgba(74,158,255,.2)'},{i:'RP',c:'rgba(240,165,0,.2)'}] },
+  { id:2, title:'Barista para Brunch de Domingo', cat:'Restauração', icon:'☕', bg:'rgba(232,81,26,.1)', status:'aberta', date:'Dom 09h', wage:'€9/h', candidates:[{i:'AF',c:'rgba(62,207,142,.2)'},{i:'TR',c:'rgba(232,81,26,.2)'}] },
+  { id:3, title:'Empregado/a de Mesa — Almoços', cat:'Restauração', icon:'🍷', bg:'rgba(232,81,26,.08)', status:'aberta', date:'Seg–6ª 12h', wage:'€8.5/h', candidates:[] },
+  { id:4, title:'Repositor Sazonal Natal', cat:'Comércio', icon:'🛒', bg:'rgba(240,165,0,.12)', status:'expirada', date:'25 Dez', wage:'€8/h', candidates:[{i:'MS',c:'rgba(80,180,120,.2)'}] },
+  { id:5, title:'Limpeza Pós-Evento (Rascunho)', cat:'Limpeza', icon:'🧹', bg:'rgba(80,180,120,.12)', status:'rascunho', date:'A definir', wage:'€10/h', candidates:[] },
+  { id:6, title:'Garçom Jantar Especial', cat:'Restauração', icon:'🍽', bg:'rgba(232,81,26,.12)', status:'preenchida', date:'10 Mar', wage:'€9/h', candidates:[{i:'RR',c:'rgba(240,165,0,.2)'}] },
+];
+
+const CANDIDATOS = [
+  { id:1, nome:'João Silva', initials:'JS', color:'rgba(62,207,142,.2)', icolor:'var(--green)', rating:4.9, jobs:14, vaga:'Garçom para Evento Corporativo', status:'pending', nota:'Tenho experiência em eventos corporativos.' },
+  { id:2, nome:'Marta Costa', initials:'MC', color:'rgba(74,158,255,.2)', icolor:'var(--blue)', rating:4.7, jobs:8, vaga:'Barista para Brunch de Domingo', status:'pending', nota:'' },
+  { id:3, nome:'Rui Pinto', initials:'RP', color:'rgba(240,165,0,.2)', icolor:'var(--accent2)', rating:4.5, jobs:22, vaga:'Garçom para Evento Corporativo', status:'accepted', nota:'' },
+  { id:4, nome:'Ana Ferreira', initials:'AF', color:'rgba(62,207,142,.2)', icolor:'var(--green)', rating:5.0, jobs:6, vaga:'Empregado/a de Mesa — Almoços', status:'pending', nota:'Disponibilidade total para almoços.' },
+  { id:5, nome:'Tiago Rocha', initials:'TR', color:'rgba(232,81,26,.2)', icolor:'var(--accent)', rating:4.3, jobs:3, vaga:'Barista para Brunch de Domingo', status:'rejected', nota:'' },
+];
+
+// ── VIEWS ──
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const titles = { dashboard:'Dashboard', vagas:'As Minhas Vagas', candidatos:'Candidatos', avaliacoes:'Avaliações', perfil:'Perfil da Empresa' };
+  const subs   = { dashboard:'Bom dia, Restaurante Solar ☀️', vagas:'Gere as tuas ofertas de trabalho', candidatos:'Analisa e seleciona candidatos', avaliacoes:'Reputação e feedback recebido', perfil:'Informações da empresa' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  document.getElementById('page-sub').textContent   = subs[name]   || '';
+  // re-render on switch
+  if (name === 'vagas')      renderVagas('todas');
+  if (name === 'candidatos') renderCandidatos();
+  if (name === 'dashboard')  { renderDashVagas(); renderDashCands(); buildChart(); }
+}
+
+// ── RENDER VAGAS ──
+function renderVagaRow(v, container) {
+  const row = document.createElement('div');
+  row.className = 'vaga-row';
+  const statusMap = { aberta:'sp-aberta Ativa', preenchida:'sp-preench Preenchida', expirada:'sp-expirada Expirada', rascunho:'sp-rascunho Rascunho', cancelada:'sp-cancelada Cancelada' };
+  const [cls, lbl] = (statusMap[v.status] || 'sp-expirada Outro').split(' ');
+  const faces = v.candidates.slice(0,3).map(c => `<div class="cand-face" style="background:${c.c}">${c.i}</div>`).join('');
+  const extraCands = v.candidates.length > 3 ? `<span style="font-size:.7rem;color:var(--muted);margin-left:.3rem">+${v.candidates.length-3}</span>` : '';
+
+  row.innerHTML = `
+    <div class="vaga-row-info">
+      <div class="vr-icon" style="background:${v.bg}">${v.icon}</div>
+      <div>
+        <div class="vr-title">${v.title}</div>
+        <div class="vr-meta">${v.cat}</div>
+      </div>
+    </div>
+    <span class="status-pill ${cls}"><span class="pill-dot"></span>${lbl}</span>
+    <div class="vaga-candidates">
+      <div class="cand-faces">${faces}</div>
+      ${v.candidates.length > 0 ? `<span style="font-size:.72rem;color:var(--muted);margin-left:.2rem">${v.candidates.length}${extraCands}</span>` : '<span style="font-size:.72rem;color:var(--muted2)">—</span>'}
+    </div>
+    <div class="vaga-date">${v.date}</div>
+    <div class="vaga-wage">${v.wage}</div>
+    <div class="row-actions">
+      <button class="btn-sm" onclick="showToast('A abrir vaga...')">Ver</button>
+      ${v.status !== 'expirada' && v.status !== 'cancelada' ? `<button class="btn-sm danger" onclick="cancelVaga(${v.id}, this)">✕</button>` : ''}
+    </div>
+  `;
+  container.appendChild(row);
+}
+
+function renderDashVagas() {
+  const c = document.getElementById('dash-vagas-list');
+  c.innerHTML = '';
+  VAGAS.filter(v => v.status === 'aberta').forEach(v => renderVagaRow(v, c));
+}
+
+let currentVagaFilter = 'todas';
+function renderVagas(filter) {
+  currentVagaFilter = filter;
+  const c = document.getElementById('all-vagas-list');
+  c.innerHTML = '';
+  const filtered = filter === 'todas' ? VAGAS : VAGAS.filter(v => v.status === filter);
+  filtered.forEach(v => renderVagaRow(v, c));
+}
+
+function filterVagasTab(btn, filter) {
+  document.querySelectorAll('#vaga-filter-tabs .btn-sm').forEach(b => {
+    b.style.background = '';
+    b.style.borderColor = '';
+    b.style.color = '';
+  });
+  btn.style.background = 'rgba(232,81,26,.1)';
+  btn.style.borderColor = 'rgba(232,81,26,.3)';
+  btn.style.color = 'var(--accent)';
+  renderVagas(filter);
+}
+
+function cancelVaga(id, btn) {
+  const v = VAGAS.find(x => x.id === id);
+  if (!v) return;
+  v.status = 'cancelada';
+  renderVagas(currentVagaFilter);
+  renderDashVagas();
+  showToast('Vaga cancelada.');
+}
+
+// ── RENDER CANDIDATOS ──
+function renderDashCands() {
+  const c = document.getElementById('dash-cands-list');
+  c.innerHTML = '';
+  CANDIDATOS.filter(c => c.status === 'pending').slice(0,3).forEach(cd => renderCandRow(cd, c, true));
+}
+
+function renderCandidatos() {
+  const filter = document.getElementById('cand-filter-vaga')?.value || '';
+  const c = document.getElementById('all-cands-list');
+  c.innerHTML = '';
+  const list = filter ? CANDIDATOS.filter(cd => cd.vaga === filter) : CANDIDATOS;
+  document.getElementById('cands-count').textContent = `(${list.length})`;
+  list.forEach(cd => renderCandRow(cd, c, false));
+}
+
+function renderCandRow(cd, container, compact) {
+  const row = document.createElement('div');
+  row.className = 'cand-row';
+
+  let actionsHtml = '';
+  if (cd.status === 'accepted') {
+    actionsHtml = `<span style="font-size:.75rem;color:var(--green);font-weight:600">✓ Aceite</span>`;
+  } else if (cd.status === 'rejected') {
+    actionsHtml = `<span style="font-size:.75rem;color:var(--muted)">Recusado</span>`;
+  } else {
+    actionsHtml = `
+      <button class="btn-accept" onclick="acceptCand(${cd.id})">✓ Aceitar</button>
+      <button class="btn-reject" onclick="rejectCand(${cd.id})">✕ Recusar</button>
+    `;
+  }
+
+  row.innerHTML = `
+    <div class="cand-avatar" style="background:${cd.color};color:${cd.icolor}">${cd.initials}</div>
+    <div class="cand-info">
+      <div class="cand-name">${cd.nome}</div>
+      <div class="cand-meta">
+        <span class="cand-rating">★ ${cd.rating}</span>
+        <span style="color:var(--muted2)">·</span>
+        <span>${cd.jobs} trabalhos</span>
+        ${!compact ? `<span style="color:var(--muted2)">·</span><span class="cand-vaga">${cd.vaga}</span>` : ''}
+      </div>
+    </div>
+    <div class="cand-actions">${actionsHtml}</div>
+  `;
+  container.appendChild(row);
+}
+
+function acceptCand(id) {
+  const c = CANDIDATOS.find(x => x.id === id);
+  if (!c) return;
+  c.status = 'accepted';
+  renderCandidatos();
+  renderDashCands();
+  showToast(`${c.nome} aceite! Contactos partilhados por email.`);
+  document.getElementById('badge-cands').textContent = CANDIDATOS.filter(x=>x.status==='pending').length;
+}
+
+function rejectCand(id) {
+  const c = CANDIDATOS.find(x => x.id === id);
+  if (!c) return;
+  c.status = 'rejected';
+  renderCandidatos();
+  renderDashCands();
+  showToast(`Candidatura de ${c.nome} recusada.`);
+  document.getElementById('badge-cands').textContent = CANDIDATOS.filter(x=>x.status==='pending').length;
+}
+
+// ── CHART ──
+function buildChart() {
+  const data = [2, 3, 1, 4, 2, 5, 3, 4];
+  const labels = ['S1','S2','S3','S4','S5','S6','S7','S8'];
+  const max = Math.max(...data);
+  const wrap = document.getElementById('chart-bars');
+  wrap.innerHTML = '';
+  data.forEach((v, i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i === 7 ? ' active' : '');
+    bar.style.height = ((v / max) * 72) + 'px';
+    bar.title = `${v} vagas`;
+    bar.onclick = () => {
+      document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+      bar.classList.add('active');
+    };
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = labels[i];
+    col.appendChild(bar);
+    col.appendChild(lbl);
+    wrap.appendChild(col);
+  });
+}
+
+// ── MODAL ──
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeModalOverlay(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function submitVaga() {
+  // simulate publish
+  const newV = {
+    id: VAGAS.length + 1,
+    title: 'Nova Vaga Publicada',
+    cat: 'Restauração', icon: '🍽',
+    bg: 'rgba(232,81,26,.12)',
+    status: 'aberta',
+    date: 'Hoje', wage: '€9/h',
+    candidates: []
+  };
+  VAGAS.unshift(newV);
+  document.getElementById('badge-vagas').textContent = VAGAS.filter(v=>v.status==='aberta').length;
+  closeModal();
+  showToast('Vaga publicada com sucesso!');
+  renderDashVagas();
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1a181c;border:1px solid rgba(62,207,142,.3);color:var(--green);padding:.6rem 1.4rem;border-radius:100px;font-size:.83rem;font-family:'DM Sans',sans-serif;font-weight:500;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:fadeUp .3s;white-space:nowrap;`;
+  t.textContent = '✓ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── INIT ──
+renderDashVagas();
+renderDashCands();
+buildChart();
+</script>
+
+</body>
+</html>

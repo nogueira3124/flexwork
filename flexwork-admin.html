@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexWork — Painel de Administração</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #080809;
+      --surface: #0e0e10;
+      --card:    #131315;
+      --card2:   #1a1a1d;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.14);
+      --white:   #ece8f2;
+      --muted:   #6e6c78;
+      --muted2:  #35333c;
+      --accent:  #e8511a;
+      --accent2: #f0a500;
+      --green:   #3ecf8e;
+      --red:     #e85555;
+      --blue:    #4a9eff;
+      --purple:  #a78bfa;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; display: flex; overflow-x: hidden; }
+
+    /* SIDENAV */
+    .sidenav { width: 220px; min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+    .sidenav::-webkit-scrollbar { width: 3px; }
+    .sidenav::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 3px; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; color: var(--white); text-decoration: none; padding: .3rem .5rem; display: block; margin-bottom: .5rem; }
+    .logo span { color: var(--accent); }
+    .admin-tag { display: flex; align-items: center; gap: .4rem; background: rgba(232,81,26,.1); border: 1px solid rgba(232,81,26,.2); color: var(--accent); font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; padding: .25rem .6rem; border-radius: 6px; margin: 0 .3rem 1.5rem; width: fit-content; }
+    .nav-section { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--muted2); padding: 0 .5rem; margin-bottom: .4rem; margin-top: 1.2rem; }
+    .nav-item { display: flex; align-items: center; gap: .65rem; padding: .55rem .75rem; border-radius: 9px; color: var(--muted); font-size: .85rem; cursor: pointer; transition: background .15s, color .15s; border: none; background: none; width: 100%; text-align: left; margin-bottom: .1rem; }
+    .nav-item:hover { background: rgba(255,255,255,.05); color: var(--white); }
+    .nav-item.active { background: rgba(232,81,26,.1); color: var(--accent); }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-num { margin-left: auto; background: var(--red); color: #fff; font-size: .62rem; font-weight: 700; padding: .1rem .45rem; border-radius: 100px; min-width: 18px; text-align: center; }
+    .nav-num.yellow { background: var(--accent2); }
+    .sidenav-bottom { margin-top: auto; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+    .admin-pill { display: flex; align-items: center; gap: .65rem; padding: .5rem .6rem; border-radius: 9px; cursor: pointer; transition: background .15s; }
+    .admin-pill:hover { background: rgba(255,255,255,.05); }
+    .admin-av { width: 32px; height: 32px; border-radius: 8px; background: rgba(232,81,26,.2); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--accent); flex-shrink: 0; }
+    .admin-name { font-size: .82rem; font-weight: 500; }
+    .admin-role { font-size: .7rem; color: var(--muted); }
+
+    /* MAIN */
+    .main-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); gap: 1rem; flex-wrap: wrap; }
+    .topbar h1 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; }
+    .topbar p  { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+    .topbar-right { display: flex; align-items: center; gap: .75rem; }
+    .btn-icon { width: 36px; height: 36px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .9rem; transition: background .15s; position: relative; }
+    .btn-icon:hover { background: rgba(255,255,255,.1); }
+    .btn-icon .dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 1px solid var(--surface); }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .55rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: .4rem; transition: opacity .2s, transform .2s; white-space: nowrap; }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+
+    .content { padding: 1.8rem 2rem 3rem; flex: 1; }
+    .view { display: none; animation: fadeIn .25s; }
+    .view.active { display: block; }
+
+    /* METRICS */
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metrics-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem; position: relative; overflow: hidden; transition: border-color .2s, transform .2s; }
+    .metric-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .metric-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; border-radius: 0 0 12px 12px; }
+    .mc-o::after { background: var(--accent); }
+    .mc-g::after { background: var(--green); }
+    .mc-b::after { background: var(--blue); }
+    .mc-p::after { background: var(--purple); }
+    .mc-r::after { background: var(--red); }
+    .mc-y::after { background: var(--accent2); }
+    .metric-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+    .metric-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: .3rem; }
+    .metric-sub { font-size: .75rem; color: var(--muted); }
+    .up { color: var(--green); }
+    .down { color: var(--red); }
+
+    /* SECTION CARD */
+    .sc { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.2rem; }
+    .sc-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: .5rem; }
+    .sc-title { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+    .sc-link { font-size: .75rem; color: var(--accent); cursor: pointer; transition: opacity .2s; background: none; border: none; font-family: 'DM Sans', sans-serif; }
+    .sc-link:hover { opacity: .7; }
+
+    /* ACTIVITY */
+    .act-item { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem 1.2rem; border-bottom: 1px solid var(--border); }
+    .act-item:last-child { border-bottom: none; }
+    .act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: .35rem; }
+    .d-g { background: var(--green); }
+    .d-o { background: var(--accent); }
+    .d-b { background: var(--blue); }
+    .d-y { background: var(--accent2); }
+    .d-r { background: var(--red); }
+    .d-p { background: var(--purple); }
+    .act-text { flex: 1; font-size: .82rem; color: rgba(255,255,255,.7); line-height: 1.4; }
+    .act-text strong { color: var(--white); font-weight: 500; }
+    .act-time { font-size: .7rem; color: var(--muted); white-space: nowrap; }
+
+    /* TABLE */
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: .6rem 1.2rem; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+    .tbl td { padding: .75rem 1.2rem; border-bottom: 1px solid var(--border); font-size: .83rem; vertical-align: middle; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr:hover td { background: rgba(255,255,255,.02); }
+
+    .user-cell { display: flex; align-items: center; gap: .65rem; }
+    .u-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: .75rem; font-weight: 800; flex-shrink: 0; }
+    .u-name { font-size: .85rem; font-weight: 500; }
+    .u-email { font-size: .72rem; color: var(--muted); }
+
+    .pill { display: inline-flex; align-items: center; gap: .3rem; font-size: .68rem; font-weight: 600; padding: .2rem .6rem; border-radius: 100px; white-space: nowrap; }
+    .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .p-empresa   { background: rgba(74,158,255,.1);   color: var(--blue); }
+    .p-trab      { background: rgba(62,207,142,.1);   color: var(--green); }
+    .p-ativo     { background: rgba(62,207,142,.1);   color: var(--green); }
+    .p-suspenso  { background: rgba(232,85,85,.1);    color: var(--red); }
+    .p-pendente  { background: rgba(240,165,0,.1);    color: var(--accent2); }
+    .p-aberta    { background: rgba(62,207,142,.1);   color: var(--green); }
+    .p-preench   { background: rgba(74,158,255,.1);   color: var(--blue); }
+    .p-expirada  { background: rgba(110,108,120,.12); color: var(--muted); }
+    .p-flag      { background: rgba(232,85,85,.1);    color: var(--red); }
+
+    .rating-stars { color: var(--accent2); font-size: .8rem; }
+
+    /* ACTION BUTTONS */
+    .btn-xs { background: rgba(255,255,255,.05); border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: .25rem .6rem; font-size: .72rem; cursor: pointer; transition: all .15s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+    .btn-xs:hover { background: rgba(255,255,255,.1); color: var(--white); border-color: var(--border2); }
+    .btn-xs.danger:hover { background: rgba(232,85,85,.1); border-color: rgba(232,85,85,.3); color: var(--red); }
+    .btn-xs.warn:hover   { background: rgba(240,165,0,.1);  border-color: rgba(240,165,0,.3);  color: var(--accent2); }
+    .btn-xs.success:hover{ background: rgba(62,207,142,.1); border-color: rgba(62,207,142,.3); color: var(--green); }
+    .act-btns { display: flex; gap: .35rem; }
+
+    /* GRID */
+    .grid-2   { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.2rem; }
+
+    /* SEARCH BAR */
+    .search-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap input { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: .6rem .9rem .6rem 2.2rem; border-radius: 8px; outline: none; transition: border-color .2s; }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-icon { position: absolute; left: .7rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .85rem; pointer-events: none; }
+    .filter-select { background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .82rem; padding: .55rem .8rem; border-radius: 8px; outline: none; cursor: pointer; appearance: none; transition: border-color .2s; }
+    .filter-select option { background: #1a1710; }
+    .filter-select:focus { border-color: var(--accent); }
+
+    /* CHART BARS */
+    .chart-wrap { padding: 1rem 1.2rem 1.2rem; }
+    .chart-bars { display: flex; align-items: flex-end; gap: .4rem; height: 80px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 4px; transition: opacity .2s; cursor: pointer; }
+    .bar:hover { opacity: .8; }
+    .bar-label { font-size: .62rem; color: var(--muted); }
+
+    /* EMAIL MODAL */
+    .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+    .modal-overlay.open { display: flex; animation: fadeIn .2s; }
+    .modal { background: #17151a; border: 1px solid var(--border2); border-radius: 18px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 2rem; animation: slideUp .3s; }
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-head h2 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; }
+    .modal-close { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.08); border: none; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all .15s; }
+    .modal-close:hover { background: rgba(255,255,255,.15); color: var(--white); }
+    .field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .9rem; }
+    .field label { font-size: .78rem; color: rgba(255,255,255,.55); font-weight: 500; }
+    .field input, .field select, .field textarea { background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 300; padding: .65rem .9rem; border-radius: 9px; outline: none; transition: border-color .2s; width: 100%; }
+    .field textarea { resize: vertical; min-height: 100px; }
+    .field input::placeholder, .field textarea::placeholder { color: var(--muted); }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+    .field select option { background: #1a1710; }
+    .modal-foot { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+    .btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: .55rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: .85rem; cursor: pointer; transition: all .15s; }
+    .btn-outline:hover { border-color: var(--border2); color: var(--white); }
+    .btn-send { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .55rem 1.4rem; font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: opacity .2s; }
+    .btn-send:hover { opacity: .88; }
+
+    /* CONFIRM DIALOG */
+    .confirm-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; }
+    .confirm-overlay.open { display: flex; animation: fadeIn .15s; }
+    .confirm-box { background: #17151a; border: 1px solid var(--border2); border-radius: 14px; padding: 1.5rem; max-width: 360px; width: 100%; text-align: center; animation: slideUp .2s; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+    .confirm-box h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; margin-bottom: .4rem; }
+    .confirm-box p { font-size: .85rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.5; }
+    .confirm-btns { display: flex; gap: .65rem; justify-content: center; }
+    .btn-confirm-cancel { background: rgba(255,255,255,.06); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: .5rem 1.2rem; font-family: 'DM Sans', sans-serif; font-size: .85rem; cursor: pointer; transition: all .15s; }
+    .btn-confirm-cancel:hover { color: var(--white); }
+    .btn-confirm-ok { background: var(--red); color: #fff; border: none; border-radius: 8px; padding: .5rem 1.4rem; font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: opacity .2s; }
+    .btn-confirm-ok:hover { opacity: .88; }
+
+    /* ANIMATIONS */
+    @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) { .metrics-row { grid-template-columns: repeat(2, 1fr); } .grid-3-1 { grid-template-columns: 1fr; } }
+    @media (max-width: 860px)  { .sidenav { display: none; } .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 600px)  { .metrics-row { grid-template-columns: 1fr 1fr; } .content { padding: 1rem 1rem 3rem; } .topbar { padding: .8rem 1rem; } }
+  </style>
+</head>
+<body>
+
+<!-- SIDENAV -->
+<aside class="sidenav">
+  <a href="flexwork-landing.html" class="logo">Flex<span>Work</span></a>
+  <div class="admin-tag">● Admin</div>
+
+  <span class="nav-section">Principal</span>
+  <button class="nav-item active" onclick="showView('dashboard')"><span class="nav-icon">⬛</span> Dashboard</button>
+  <button class="nav-item" onclick="showView('utilizadores')"><span class="nav-icon">👥</span> Utilizadores <span class="nav-num" id="b-users">142</span></button>
+  <button class="nav-item" onclick="showView('vagas')"><span class="nav-icon">📋</span> Vagas <span class="nav-num yellow" id="b-vagas">38</span></button>
+  <button class="nav-item" onclick="showView('avaliacoes')"><span class="nav-icon">⭐</span> Avaliações <span class="nav-num" id="b-flags">3</span></button>
+  <button class="nav-item" onclick="showView('atividade')"><span class="nav-icon">⚡</span> Atividade</button>
+
+  <span class="nav-section">Ferramentas</span>
+  <button class="nav-item" onclick="openEmailModal()"><span class="nav-icon">✉️</span> Enviar Email</button>
+  <button class="nav-item" onclick="showView('definicoes')"><span class="nav-icon">⚙️</span> Definições</button>
+
+  <div class="sidenav-bottom">
+    <div class="admin-pill">
+      <div class="admin-av">FW</div>
+      <div>
+        <div class="admin-name">Fundador FlexWork</div>
+        <div class="admin-role">Administrador</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-area">
+  <div class="topbar">
+    <div>
+      <h1 id="page-title">Dashboard</h1>
+      <p id="page-sub">Visão geral da plataforma · Março 2026</p>
+    </div>
+    <div class="topbar-right">
+      <div class="btn-icon">🔔<span class="dot"></span></div>
+      <button class="btn-primary" style="background:rgba(232,85,85,.15);color:var(--red);border:1px solid rgba(232,85,85,.25);box-shadow:none;" onclick="adminLogout()">Sair ↗</button>
+      <button class="btn-primary" onclick="openEmailModal()">✉️ Enviar Email</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="view active" id="view-dashboard">
+
+      <div class="metrics-row">
+        <div class="metric-card mc-o">
+          <div class="metric-label">Total Utilizadores</div>
+          <div class="metric-value">142</div>
+          <div class="metric-sub"><span class="up">↑ 18</span> este mês</div>
+        </div>
+        <div class="metric-card mc-b">
+          <div class="metric-label">Vagas Publicadas</div>
+          <div class="metric-value">38</div>
+          <div class="metric-sub"><span class="up">↑ 6</span> esta semana</div>
+        </div>
+        <div class="metric-card mc-g">
+          <div class="metric-label">Matches Realizados</div>
+          <div class="metric-value">91</div>
+          <div class="metric-sub"><span class="up">↑ 12</span> este mês</div>
+        </div>
+        <div class="metric-card mc-p">
+          <div class="metric-label">Avaliação Média</div>
+          <div class="metric-value">4.7<span style="font-size:1rem;color:var(--accent2)">★</span></div>
+          <div class="metric-sub">Baseada em <strong style="color:var(--white)">89</strong> avaliações</div>
+        </div>
+      </div>
+
+      <div class="grid-3-1">
+        <!-- Atividade recente -->
+        <div class="sc">
+          <div class="sc-head">
+            <div class="sc-title"><span>⚡</span> Atividade Recente</div>
+            <button class="sc-link" onclick="showView('atividade')">Ver tudo →</button>
+          </div>
+          <div id="dash-activity"></div>
+        </div>
+
+        <!-- Stats rápidas -->
+        <div style="display:flex;flex-direction:column;gap:1.2rem;">
+          <div class="sc">
+            <div class="sc-head"><div class="sc-title"><span>📊</span> Distribuição</div></div>
+            <div style="padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.75rem;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem;"><span style="color:var(--muted)">Empresas</span><span>54</span></div>
+                <div style="height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;"><div style="height:100%;width:38%;background:var(--blue);border-radius:100px;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem;"><span style="color:var(--muted)">Trabalhadores</span><span>88</span></div>
+                <div style="height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;"><div style="height:100%;width:62%;background:var(--green);border-radius:100px;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem;"><span style="color:var(--muted)">Vagas ativas</span><span>14</span></div>
+                <div style="height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;"><div style="height:100%;width:37%;background:var(--accent);border-radius:100px;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem;"><span style="color:var(--muted)">Contas suspensas</span><span style="color:var(--red)">2</span></div>
+                <div style="height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;"><div style="height:100%;width:2%;background:var(--red);border-radius:100px;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-head"><div class="sc-title"><span>🚨</span> Pendente revisão</div></div>
+            <div style="padding:.75rem 1.2rem;display:flex;flex-direction:column;gap:.5rem;">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:.82rem;">
+                <span>Avaliações reportadas</span>
+                <span style="color:var(--red);font-weight:600">3</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:.82rem;">
+                <span>Contas não verificadas</span>
+                <span style="color:var(--accent2);font-weight:600">7</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:.82rem;">
+                <span>Vagas expiradas c/ match</span>
+                <span style="color:var(--muted)">12</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crescimento -->
+      <div class="sc" style="margin-top:1.2rem">
+        <div class="sc-head">
+          <div class="sc-title"><span>📈</span> Crescimento Mensal</div>
+          <span style="font-size:.72rem;color:var(--muted)">Utilizadores · Vagas · Matches</span>
+        </div>
+        <div class="chart-wrap"><div class="chart-bars" id="dash-chart"></div></div>
+      </div>
+    </div>
+
+    <!-- ── UTILIZADORES (RF-11.2) ── -->
+    <div class="view" id="view-utilizadores">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Pesquisar por nome ou email..." id="user-search" oninput="filterUsers()" />
+        </div>
+        <select class="filter-select" id="user-type-filter" onchange="filterUsers()">
+          <option value="">Todos os tipos</option>
+          <option value="empresa">Empresas</option>
+          <option value="trabalhador">Trabalhadores</option>
+        </select>
+        <select class="filter-select" id="user-status-filter" onchange="filterUsers()">
+          <option value="">Todos os estados</option>
+          <option value="ativo">Ativos</option>
+          <option value="suspenso">Suspensos</option>
+          <option value="pendente">Pendentes</option>
+        </select>
+      </div>
+      <div class="sc">
+        <div class="sc-head">
+          <div class="sc-title"><span>👥</span> Utilizadores <span id="users-count" style="font-size:.78rem;color:var(--muted);font-weight:400;margin-left:.3rem"></span></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl" id="users-table">
+            <thead>
+              <tr>
+                <th>Utilizador</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Registo</th>
+                <th>Atividade</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VAGAS (RF-11.3) ── -->
+    <div class="view" id="view-vagas">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Pesquisar vagas..." id="vaga-search" oninput="filterVagas()" />
+        </div>
+        <select class="filter-select" id="vaga-status-filter" onchange="filterVagas()">
+          <option value="">Todos os estados</option>
+          <option value="aberta">Abertas</option>
+          <option value="preenchida">Preenchidas</option>
+          <option value="expirada">Expiradas</option>
+        </select>
+      </div>
+      <div class="sc">
+        <div class="sc-head">
+          <div class="sc-title"><span>📋</span> Vagas <span id="vagas-count" style="font-size:.78rem;color:var(--muted);font-weight:400;margin-left:.3rem"></span></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl" id="vagas-table">
+            <thead>
+              <tr>
+                <th>Vaga</th>
+                <th>Empresa</th>
+                <th>Estado</th>
+                <th>Data</th>
+                <th>Candidatos</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="vagas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AVALIAÇÕES (RF-11.3) ── -->
+    <div class="view" id="view-avaliacoes">
+      <div class="sc">
+        <div class="sc-head">
+          <div class="sc-title"><span>🚨</span> Avaliações Reportadas</div>
+          <span style="font-size:.75rem;color:var(--red)">3 pendentes de revisão</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Avaliação</th><th>De</th><th>Para</th><th>Nota</th><th>Motivo Reporte</th><th>Ações</th></tr></thead>
+            <tbody id="aval-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-head"><div class="sc-title"><span>⭐</span> Todas as Avaliações Recentes</div></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Avaliador</th><th>Avaliado</th><th>Nota</th><th>Comentário</th><th>Data</th><th>Ações</th></tr></thead>
+            <tbody id="aval-all-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ATIVIDADE (RF-11.4) ── -->
+    <div class="view" id="view-atividade">
+      <div class="sc">
+        <div class="sc-head">
+          <div class="sc-title"><span>⚡</span> Registo de Atividade da Plataforma</div>
+          <span style="font-size:.72rem;color:var(--muted)">Últimas 48 horas</span>
+        </div>
+        <div id="full-activity"></div>
+      </div>
+    </div>
+
+    <!-- ── DEFINIÇÕES ── -->
+    <div class="view" id="view-definicoes">
+      <div class="sc" style="max-width:580px">
+        <div class="sc-head"><div class="sc-title"><span>⚙️</span> Definições da Plataforma</div></div>
+        <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+          <div class="field">
+            <label>Nome da Plataforma</label>
+            <input type="text" value="FlexWork" />
+          </div>
+          <div class="field">
+            <label>Email de Suporte</label>
+            <input type="email" value="suporte@flexwork.pt" />
+          </div>
+          <div class="field">
+            <label>Janela de avaliação (horas após fim de vaga)</label>
+            <input type="number" value="48" min="1" max="168" />
+          </div>
+          <div class="field">
+            <label>Máx. candidatos por vaga (padrão)</label>
+            <input type="number" value="1" min="1" />
+          </div>
+          <div style="display:flex;justify-content:flex-end;padding-top:.5rem;border-top:1px solid var(--border);">
+            <button class="btn-primary" onclick="showToast('Definições guardadas!')">Guardar alterações</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EMAIL MODAL (RF-11.5) -->
+<div class="modal-overlay" id="email-modal" onclick="closeEmailOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>✉️ Enviar Email</h2>
+      <button class="modal-close" onclick="closeEmailModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Destinatários</label>
+      <select id="email-segment">
+        <option value="todos">Todos os utilizadores (142)</option>
+        <option value="empresas">Apenas Empresas (54)</option>
+        <option value="trabalhadores">Apenas Trabalhadores (88)</option>
+        <option value="ativos">Utilizadores ativos últimos 30 dias</option>
+        <option value="inativos">Utilizadores inativos há mais de 30 dias</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Assunto</label>
+      <input type="text" id="email-subject" placeholder="Ex: Novidades do FlexWork — Março 2026" />
+    </div>
+    <div class="field">
+      <label>Mensagem</label>
+      <textarea id="email-body" placeholder="Escreve a mensagem aqui...&#10;&#10;Podes usar {nome} para personalizar com o nome do utilizador."></textarea>
+    </div>
+    <div style="background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.2);border-radius:9px;padding:.75rem 1rem;font-size:.78rem;color:rgba(255,255,255,.6);margin-bottom:.5rem;">
+      ⚠️ Este email será enviado via Brevo. Certifica-te que o conteúdo respeita o RGPD e inclui opção de cancelar subscrição.
+    </div>
+    <div class="modal-foot">
+      <button class="btn-outline" onclick="closeEmailModal()">Cancelar</button>
+      <button class="btn-send" onclick="sendEmail()">Enviar Email →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <h3 id="confirm-title">Tens a certeza?</h3>
+    <p id="confirm-msg">Esta ação não pode ser revertida.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-confirm-ok" id="confirm-ok-btn" onclick="confirmAction()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const USERS = [
+  { id:1,  name:'Restaurante Solar',    email:'solar@email.pt',        type:'empresa',     status:'ativo',    registered:'Jan 2026', activity:'Há 2h',   vagas:6,  rating:4.8 },
+  { id:2,  name:'João Silva',           email:'joao@email.pt',         type:'trabalhador', status:'ativo',    registered:'Jan 2026', activity:'Há 5h',   vagas:14, rating:4.9 },
+  { id:3,  name:'Hipermercado Max',     email:'rh@hmax.pt',            type:'empresa',     status:'ativo',    registered:'Fev 2026', activity:'Há 1d',   vagas:3,  rating:4.2 },
+  { id:4,  name:'Ana Ferreira',         email:'ana.f@email.pt',        type:'trabalhador', status:'ativo',    registered:'Fev 2026', activity:'Há 2d',   vagas:6,  rating:5.0 },
+  { id:5,  name:'CleanPro Lda',         email:'geral@cleanpro.pt',     type:'empresa',     status:'ativo',    registered:'Fev 2026', activity:'Há 3d',   vagas:8,  rating:4.6 },
+  { id:6,  name:'Tiago Rocha',          email:'tiago.r@email.pt',      type:'trabalhador', status:'suspenso', registered:'Mar 2026', activity:'Há 5d',   vagas:3,  rating:3.1 },
+  { id:7,  name:'MagicFun Eventos',     email:'info@magicfun.pt',      type:'empresa',     status:'ativo',    registered:'Mar 2026', activity:'Há 1h',   vagas:4,  rating:4.7 },
+  { id:8,  name:'Marta Costa',          email:'marta.c@email.pt',      type:'trabalhador', status:'ativo',    registered:'Mar 2026', activity:'Há 4h',   vagas:8,  rating:4.7 },
+  { id:9,  name:'SpeedLog Portugal',    email:'ops@speedlog.pt',       type:'empresa',     status:'pendente', registered:'Mar 2026', activity:'Há 2d',   vagas:0,  rating:0   },
+  { id:10, name:'Rui Pinto',            email:'rui.p@email.pt',        type:'trabalhador', status:'ativo',    registered:'Jan 2026', activity:'Há 6h',   vagas:22, rating:4.5 },
+];
+
+const VAGAS = [
+  { id:1, title:'Garçom para Evento Corporativo', company:'Restaurante Solar',  status:'aberta',    date:'Amanhã 18h',  candidates:3 },
+  { id:2, title:'Repositor Sazonais — Fim Semana',company:'Hipermercado Max',   status:'aberta',    date:'Sáb + Dom',   candidates:5 },
+  { id:3, title:'Limpeza Pós-Evento',             company:'CleanPro Lda',       status:'aberta',    date:'6ª-feira',    candidates:2 },
+  { id:4, title:'Barista para Brunch de Domingo', company:'Café Azul',          status:'aberta',    date:'Dom 09h',     candidates:2 },
+  { id:5, title:'Animador Eventos Infantis',      company:'MagicFun Eventos',   status:'aberta',    date:'Sáb 12 Abr',  candidates:3 },
+  { id:6, title:'Garçom Jantar Especial',         company:'Restaurante Solar',  status:'preenchida',date:'10 Mar',      candidates:1 },
+  { id:7, title:'Empregado de Mesa — Almoços',    company:'Taberna do Porto',   status:'aberta',    date:'Seg–6ª',      candidates:1 },
+  { id:8, title:'Operador Logística',             company:'SpeedLog Portugal',  status:'expirada',  date:'5 Mar',       candidates:4 },
+];
+
+const AVALIACOES_FLAG = [
+  { id:1, de:'Tiago Rocha', para:'Restaurante Solar', nota:1, motivo:'Linguagem ofensiva', comentario:'"Empresa uma vergonha, nunca mais"' },
+  { id:2, de:'Utilizador anónimo', para:'CleanPro Lda', nota:2, motivo:'Informação falsa', comentario:'"Pagaram menos do prometido"' },
+  { id:3, de:'Empresa X', para:'João Silva', nota:1, motivo:'Conteúdo inapropriado', comentario:'"Não apareceu ao trabalho"' },
+];
+
+const AVALIACOES_ALL = [
+  { de:'Ana Ferreira',     para:'Restaurante Solar',  nota:5, text:'Empresa muito organizada, recomendo.',        data:'14 Mar' },
+  { de:'Restaurante Solar',para:'João Silva',          nota:5, text:'Profissional e pontual. Voltamos a chamar.',  data:'14 Mar' },
+  { de:'Marta Costa',      para:'Café Azul',           nota:4, text:'Bom ambiente, equipa simpática.',             data:'10 Mar' },
+  { de:'Café Azul',        para:'Marta Costa',         nota:5, text:'Excelente barista, latte art impecável.',     data:'10 Mar' },
+  { de:'Rui Pinto',        para:'Restaurante Solar',   nota:5, text:'Tudo muito organizado, pagamento pontual.',   data:'5 Mar' },
+];
+
+const ACTIVITY = [
+  { dot:'d-g', text:'<strong>João Silva</strong> candidatou-se a Garçom para Evento', time:'5m' },
+  { dot:'d-o', text:'<strong>Restaurante Solar</strong> publicou nova vaga: Barista Brunch', time:'1h' },
+  { dot:'d-b', text:'<strong>Ana Ferreira</strong> foi aceite para Empregada de Mesa', time:'3h' },
+  { dot:'d-r', text:'Avaliação de <strong>Tiago Rocha</strong> reportada como ofensiva', time:'4h' },
+  { dot:'d-y', text:'<strong>SpeedLog Portugal</strong> registou-se como empresa (pendente verificação)', time:'6h' },
+  { dot:'d-g', text:'<strong>Marta Costa</strong> candidatou-se a Barista para Brunch', time:'8h' },
+  { dot:'d-p', text:'<strong>MagicFun Eventos</strong> publicou 2 novas vagas', time:'12h' },
+  { dot:'d-r', text:'Conta de <strong>Tiago Rocha</strong> suspensa pelo administrador', time:'14h' },
+  { dot:'d-b', text:'Match confirmado: <strong>Rui Pinto</strong> ↔ Restaurante Solar', time:'1d' },
+  { dot:'d-o', text:'<strong>CleanPro Lda</strong> cancelou a vaga Limpeza Nocturna', time:'1d' },
+  { dot:'d-g', text:'<strong>Carlos Mendes</strong> completou o registo como trabalhador', time:'1d' },
+  { dot:'d-y', text:'Vaga <strong>Operador Logística</strong> expirou automaticamente', time:'2d' },
+];
+
+// ── PENDING ACTION ──
+let pendingAction = null;
+
+// ── VIEWS ──
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const titles = { dashboard:'Dashboard', utilizadores:'Utilizadores', vagas:'Vagas', avaliacoes:'Avaliações', atividade:'Atividade', definicoes:'Definições' };
+  const subs   = { dashboard:'Visão geral da plataforma · Março 2026', utilizadores:'Gestão de contas e utilizadores', vagas:'Moderação de vagas publicadas', avaliacoes:'Moderação de avaliações reportadas', atividade:'Registo de atividade em tempo real', definicoes:'Configurações globais da plataforma' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  document.getElementById('page-sub').textContent   = subs[name] || '';
+  if (name === 'utilizadores') renderUsers(USERS);
+  if (name === 'vagas')        renderVagas(VAGAS);
+  if (name === 'avaliacoes')   renderAvaliacoes();
+  if (name === 'atividade')    renderFullActivity();
+  if (name === 'dashboard')    { renderDashActivity(); buildChart(); }
+}
+
+// ── RENDER USERS ──
+function renderUsers(list) {
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+  document.getElementById('users-count').textContent = `(${list.length})`;
+  list.forEach(u => {
+    const typeMap = { empresa:'p-empresa Empresa', trabalhador:'p-trab Trabalhador' };
+    const statMap = { ativo:'p-ativo Ativo', suspenso:'p-suspenso Suspenso', pendente:'p-pendente Pendente' };
+    const [tc, tl] = typeMap[u.type].split(' ');
+    const [sc, sl] = statMap[u.status].split(' ');
+    const colors = ['rgba(232,81,26,.2)','rgba(62,207,142,.2)','rgba(74,158,255,.2)','rgba(240,165,0,.2)','rgba(167,139,250,.2)'];
+    const textColors = ['var(--accent)','var(--green)','var(--blue)','var(--accent2)','var(--purple)'];
+    const ci = u.id % colors.length;
+    const isSuspended = u.status === 'suspenso';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="user-cell">
+          <div class="u-av" style="background:${colors[ci]};color:${textColors[ci]}">${u.name.substring(0,2).toUpperCase()}</div>
+          <div>
+            <div class="u-name">${u.name}</div>
+            <div class="u-email">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="pill ${tc}"><span class="pill-dot"></span>${tl}</span></td>
+      <td><span class="pill ${sc}"><span class="pill-dot"></span>${sl}</span></td>
+      <td style="color:var(--muted);font-size:.78rem">${u.registered}</td>
+      <td style="color:var(--muted);font-size:.78rem">${u.activity}</td>
+      <td>
+        <div class="act-btns">
+          <button class="btn-xs" onclick="editUser(${u.id})">Editar</button>
+          <button class="btn-xs warn" onclick="toggleSuspend(${u.id})">${isSuspended ? 'Reativar' : 'Suspender'}</button>
+          <button class="btn-xs danger" onclick="askDelete('user', ${u.id}, '${u.name}')">Remover</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterUsers() {
+  const search = document.getElementById('user-search').value.toLowerCase();
+  const type   = document.getElementById('user-type-filter').value;
+  const status = document.getElementById('user-status-filter').value;
+  const list = USERS.filter(u => {
+    if (search && !u.name.toLowerCase().includes(search) && !u.email.toLowerCase().includes(search)) return false;
+    if (type   && u.type   !== type)   return false;
+    if (status && u.status !== status) return false;
+    return true;
+  });
+  renderUsers(list);
+}
+
+function editUser(id) {
+  const u = USERS.find(x => x.id === id);
+  showToast(`A abrir perfil de ${u.name}…`);
+}
+
+function toggleSuspend(id) {
+  const u = USERS.find(x => x.id === id);
+  if (u.status === 'suspenso') {
+    u.status = 'ativo';
+    showToast(`Conta de ${u.name} reativada.`);
+  } else {
+    pendingAction = () => {
+      u.status = 'suspenso';
+      showToast(`Conta de ${u.name} suspensa.`);
+      document.getElementById('b-users').textContent = USERS.length;
+      filterUsers();
+    };
+    showConfirm('⚠️', `Suspender ${u.name}?`, 'O utilizador perderá acesso à plataforma imediatamente.');
+    return;
+  }
+  filterUsers();
+}
+
+function askDelete(type, id, name) {
+  pendingAction = () => {
+    if (type === 'user') {
+      const idx = USERS.findIndex(x => x.id === id);
+      if (idx > -1) USERS.splice(idx, 1);
+      filterUsers();
+      document.getElementById('b-users').textContent = USERS.length;
+    } else if (type === 'vaga') {
+      const idx = VAGAS.findIndex(x => x.id === id);
+      if (idx > -1) VAGAS.splice(idx, 1);
+      renderVagas(VAGAS);
+      document.getElementById('b-vagas').textContent = VAGAS.length;
+    }
+    showToast(`"${name}" removido com sucesso.`);
+  };
+  showConfirm('🗑️', `Remover "${name}"?`, 'Esta ação é permanente e não pode ser desfeita.');
+}
+
+// ── RENDER VAGAS ──
+function renderVagas(list) {
+  const tbody = document.getElementById('vagas-tbody');
+  tbody.innerHTML = '';
+  document.getElementById('vagas-count').textContent = `(${list.length})`;
+  list.forEach(v => {
+    const statMap = { aberta:'p-aberta Aberta', preenchida:'p-preench Preenchida', expirada:'p-expirada Expirada' };
+    const [sc, sl] = (statMap[v.status] || 'p-expirada Outro').split(' ');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:500;max-width:220px">${v.title}</td>
+      <td style="color:var(--muted);font-size:.78rem">${v.company}</td>
+      <td><span class="pill ${sc}"><span class="pill-dot"></span>${sl}</span></td>
+      <td style="color:var(--muted);font-size:.78rem">${v.date}</td>
+      <td style="font-size:.82rem">${v.candidates}</td>
+      <td>
+        <div class="act-btns">
+          <button class="btn-xs" onclick="showToast('A abrir vaga…')">Ver</button>
+          <button class="btn-xs danger" onclick="askDelete('vaga', ${v.id}, '${v.title}')">Remover</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterVagas() {
+  const search = document.getElementById('vaga-search').value.toLowerCase();
+  const status = document.getElementById('vaga-status-filter').value;
+  const list = VAGAS.filter(v => {
+    if (search && !v.title.toLowerCase().includes(search) && !v.company.toLowerCase().includes(search)) return false;
+    if (status && v.status !== status) return false;
+    return true;
+  });
+  renderVagas(list);
+}
+
+// ── RENDER AVALIAÇÕES ──
+function renderAvaliacoes() {
+  // flagged
+  const tbody = document.getElementById('aval-tbody');
+  tbody.innerHTML = '';
+  AVALIACOES_FLAG.forEach((a, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="max-width:180px;font-size:.8rem;font-style:italic;color:rgba(255,255,255,.6)">${a.comentario}</td>
+      <td style="font-size:.82rem">${a.de}</td>
+      <td style="font-size:.82rem">${a.para}</td>
+      <td><span class="rating-stars">${'★'.repeat(a.nota)}${'☆'.repeat(5-a.nota)}</span></td>
+      <td><span class="pill p-flag"><span class="pill-dot"></span>${a.motivo}</span></td>
+      <td>
+        <div class="act-btns">
+          <button class="btn-xs danger" onclick="removeAval(${i})">Remover</button>
+          <button class="btn-xs" onclick="showToast('Reporte ignorado.')">Ignorar</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  // all
+  const tbody2 = document.getElementById('aval-all-tbody');
+  tbody2.innerHTML = '';
+  AVALIACOES_ALL.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-size:.82rem">${a.de}</td>
+      <td style="font-size:.82rem">${a.para}</td>
+      <td><span class="rating-stars">${'★'.repeat(a.nota)}${'☆'.repeat(5-a.nota)}</span></td>
+      <td style="font-size:.78rem;color:rgba(255,255,255,.6);max-width:220px">${a.text}</td>
+      <td style="font-size:.75rem;color:var(--muted)">${a.data}</td>
+      <td>
+        <div class="act-btns">
+          <button class="btn-xs danger" onclick="showToast('Avaliação removida.')">Remover</button>
+        </div>
+      </td>
+    `;
+    tbody2.appendChild(tr);
+  });
+}
+
+function removeAval(i) {
+  pendingAction = () => {
+    AVALIACOES_FLAG.splice(i, 1);
+    document.getElementById('b-flags').textContent = AVALIACOES_FLAG.length;
+    renderAvaliacoes();
+    showToast('Avaliação removida.');
+  };
+  showConfirm('🗑️', 'Remover avaliação?', 'A avaliação será apagada permanentemente da plataforma.');
+}
+
+// ── ACTIVITY ──
+function renderActivity(items, containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  items.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'act-item';
+    div.innerHTML = `<div class="act-dot ${a.dot}"></div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div>`;
+    c.appendChild(div);
+  });
+}
+function renderDashActivity() { renderActivity(ACTIVITY.slice(0, 7), 'dash-activity'); }
+function renderFullActivity()  { renderActivity(ACTIVITY, 'full-activity'); }
+
+// ── CHART ──
+function buildChart() {
+  const data = [
+    {l:'Jan', u:28, v:8,  m:18},
+    {l:'Fev', u:42, v:14, m:31},
+    {l:'Mar', u:72, v:16, m:42},
+  ];
+  const wrap = document.getElementById('dash-chart');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const colors = [['var(--accent)','var(--blue)','var(--green)']];
+  const maxU = Math.max(...data.map(d => d.u));
+  data.forEach(d => {
+    const grp = document.createElement('div');
+    grp.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;';
+    const bars = document.createElement('div');
+    bars.style.cssText = 'display:flex;align-items:flex-end;gap:3px;height:72px;';
+    [['u','var(--accent)'],['v','var(--blue)'],['m','var(--green)']].forEach(([key, col]) => {
+      const bar = document.createElement('div');
+      const h = Math.max(4, (d[key] / maxU) * 72);
+      bar.style.cssText = `flex:1;height:${h}px;border-radius:3px 3px 0 0;background:${col};opacity:.7;transition:opacity .2s;cursor:pointer;`;
+      bar.onmouseover = () => bar.style.opacity = '1';
+      bar.onmouseout  = () => bar.style.opacity = '.7';
+      bar.title = `${d.l}: ${d[key]}`;
+      bars.appendChild(bar);
+    });
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = d.l;
+    grp.appendChild(bars);
+    grp.appendChild(lbl);
+    wrap.appendChild(grp);
+  });
+  // Legend
+  const legend = document.createElement('div');
+  legend.style.cssText = 'grid-column:1/-1;display:flex;gap:1rem;padding:.3rem 1.2rem .8rem;font-size:.72rem;color:var(--muted);';
+  [['var(--accent)','Utilizadores'],['var(--blue)','Vagas'],['var(--green)','Matches']].forEach(([col, lbl]) => {
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;gap:.3rem;';
+    item.innerHTML = `<div style="width:8px;height:8px;border-radius:2px;background:${col}"></div>${lbl}`;
+    legend.appendChild(item);
+  });
+  wrap.parentElement.appendChild(legend);
+}
+
+// ── EMAIL MODAL ──
+function openEmailModal() {
+  document.getElementById('email-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeEmailOnOverlay(e) { if (e.target === document.getElementById('email-modal')) closeEmailModal(); }
+function sendEmail() {
+  const seg  = document.getElementById('email-segment');
+  const subj = document.getElementById('email-subject').value;
+  if (!subj.trim()) { showToast('Preenche o assunto do email.'); return; }
+  closeEmailModal();
+  showToast(`Email enviado para: ${seg.options[seg.selectedIndex].text}`);
+}
+
+// ── CONFIRM DIALOG ──
+function showConfirm(icon, title, msg) {
+  document.getElementById('confirm-icon').textContent = icon;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  pendingAction = null;
+}
+function confirmAction() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (pendingAction) { pendingAction(); pendingAction = null; }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeEmailModal(); closeConfirm(); }
+});
+
+// ── TOAST ──
+function showToast(msg, type) {
+  const isErr = type === 'error';
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#17151a;border:1px solid ${isErr ? 'rgba(232,85,85,.3)' : 'rgba(62,207,142,.3)'};color:${isErr ? 'var(--red)' : 'var(--green)'};padding:.6rem 1.4rem;border-radius:100px;font-size:.83rem;font-family:'DM Sans',sans-serif;font-weight:500;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:fadeUp .3s;white-space:nowrap;`;
+  t.textContent = (isErr ? '✕ ' : '✓ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ── GUARD ──
+(function(){ if(!sessionStorage.getItem('fw_admin_auth')){ window.location.replace('flexwork-admin-login.html'); } })();
+
+function adminLogout() { sessionStorage.removeItem('fw_admin_auth'); window.location.replace('flexwork-admin-login.html'); }
+
+// ── INIT ──
+renderDashActivity();
+buildChart();
+</script>
+
+</body>
+</html>
